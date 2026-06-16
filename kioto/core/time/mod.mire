@@ -1,0 +1,12 @@
+module time
+extern fn pal_time_unix_ms: () :i64 lib "c"
+extern fn pal_time_unix_ns: () :i64 lib "c"
+extern fn pal_time_since_ms: (start :i64) :i64 lib "c"
+extern fn pal_time_since_ns: (start :i64) :i64 lib "c"
+extern fn pal_time_mark: () :i64 lib "c"
+
+pub fn unix_ms: () :i64 { return pal_time_unix_ms() }
+pub fn unix_ns: () :i64 { return pal_time_unix_ns() }
+pub fn elapsed: (start :i64) :i64 { return pal_time_since_ms(start) }
+pub fn elapsed_ns: (start :i64) :i64 { return pal_time_since_ns(start) }
+pub fn mark: () :i64 { return pal_time_mark() }

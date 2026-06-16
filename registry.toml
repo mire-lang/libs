@@ -1,0 +1,11 @@
+schema_version = "1.0"
+
+[packages.kioto]
+description = "Standard library for mire — core types, collections, I/O, and more"
+version = "3.11.10"
+path = "kioto"
+
+[packages.owl]
+description = "Owl build system — CLI tool for project management, builds, testing, and packages"
+version = "0.13.1"
+path = "owl"

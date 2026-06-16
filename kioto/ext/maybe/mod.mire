@@ -1,0 +1,50 @@
+module maybe
+pub fn some: (value) {
+    return {tag: "some", value: value}
+}
+
+pub fn none: () {
+    return {tag: "none"}
+}
+
+pub fn is_some: (m) :bool {
+    return dicts.get(m "tag") == "some"
+}
+
+pub fn is_none: (m) :bool {
+    return dicts.get(m "tag") != "some"
+}
+
+pub fn map: (m next_value) {
+    set m0 = m
+    if dicts.get(m0 "tag") == "some" {
+        return {tag: "some", value: next_value}
+    }
+    return m
+}
+
+pub fn bind: (m next_maybe) :map[str anything] {
+    set m0 = m
+    if dicts.get(m0 "tag") == "some" {
+        return next_maybe
+    }
+    return m
+}
+
+pub fn or_else: (m fallback) {
+    set m1 = m
+    if dicts.get(m1 "tag") == "some" {
+        set m2 = m
+        return dicts.get(m2 "value")
+    }
+    return fallback
+}
+
+pub fn unwrap: (m) {
+    set m1 = m
+    if dicts.get(m1 "tag") == "some" {
+        set m2 = m
+        return dicts.get(m2 "value")
+    }
+    return m
+}

@@ -1,0 +1,20 @@
+module tuple
+pub fn pair: (a b) {
+    return [a b]
+}
+
+pub fn triple: (a b c) {
+    return [a b c]
+}
+
+extern fn rt_vec_get_str: (list :&vec[str], index :i64) :str lib "c"
+
+pub fn first: (t :vec[str]) :str {
+    set t_local = t
+    return rt_vec_get_str(t_local 0)
+}
+
+pub fn second: (t :vec[str]) :str {
+    set t_local = t
+    return rt_vec_get_str(t_local 1)
+}

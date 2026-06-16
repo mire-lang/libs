@@ -1,0 +1,60 @@
+module _externs
+// Shared extern declarations for the math module.
+// Single source of truth — all submodules import this instead of
+// duplicating extern fn lines.
+
+// Constants
+extern fn rt_math_pi: () :f64 lib "c"
+extern fn rt_math_e: () :f64 lib "c"
+extern fn rt_math_tau: () :f64 lib "c"
+
+// Trigonometry
+extern fn rt_math_sin: (value :f64) :f64 lib "c"
+extern fn rt_math_cos: (value :f64) :f64 lib "c"
+extern fn rt_math_tan: (value :f64) :f64 lib "c"
+extern fn rt_math_asin: (value :f64) :f64 lib "c"
+extern fn rt_math_acos: (value :f64) :f64 lib "c"
+extern fn rt_math_atan2: (y :f64, x :f64) :f64 lib "c"
+
+// Roots, powers, logs
+extern fn rt_math_sqrt: (value :f64) :f64 lib "c"
+extern fn rt_math_pow: (base :f64, exponent :f64) :f64 lib "c"
+extern fn rt_math_log: (value :f64) :f64 lib "c"
+extern fn rt_math_log10: (value :f64) :f64 lib "c"
+extern fn rt_math_exp: (value :f64) :f64 lib "c"
+
+// Rounding
+extern fn rt_math_round: (value :f64) :i64 lib "c"
+extern fn rt_math_floor: (value :f64) :i64 lib "c"
+extern fn rt_math_ceil: (value :f64) :i64 lib "c"
+
+// Statistics on i64 collections (read-only)
+extern fn rt_math_sum_i64: (list :&vec[i64]) :i64 lib "c"
+extern fn rt_math_min_list_i64: (list :&vec[i64]) :i64 lib "c"
+extern fn rt_math_max_list_i64: (list :&vec[i64]) :i64 lib "c"
+extern fn rt_math_mean_i64: (list :&vec[i64]) :f64 lib "c"
+extern fn rt_math_variance_i64: (list :&vec[i64]) :f64 lib "c"
+extern fn rt_math_stddev_i64: (list :&vec[i64]) :f64 lib "c"
+extern fn rt_math_median_i64: (list :&vec[i64]) :f64 lib "c"
+
+// Range generation (returns new vec)
+extern fn rt_math_range_i64: (end :i64) :vec[i64] lib "c"
+extern fn rt_math_range_between_i64: (start :i64, end :i64) :vec[i64] lib "c"
+extern fn rt_math_range_step_i64: (start :i64, end :i64, step :i64) :vec[i64] lib "c"
+
+// Random number generation (xorshift64*)
+extern fn rt_math_random_seed: (seed :i64) lib "c"
+extern fn rt_math_random_u64: () :i64 lib "c"
+extern fn rt_math_random_i64: () :i64 lib "c"
+extern fn rt_math_random_f64: () :f64 lib "c"
+extern fn rt_math_random_bool: () :bool lib "c"
+extern fn rt_math_random_range_i64: (min :i64, max :i64) :i64 lib "c"
+
+// String operations (used by decimal arithmetic)
+extern fn rt_string_to_i64: (value :str) :i64 lib "c"
+extern fn rt_strings_len: (s :&str) :i64 lib "c"
+extern fn rt_strings_strip: (s :&str) :str lib "c"
+extern fn rt_strings_starts_with: (s :&str, prefix :&str) :bool lib "c"
+extern fn rt_strings_substr: (s :&str, start :i64, len :i64) :str lib "c"
+extern fn rt_strings_index_of: (s :&str, sub :&str) :i64 lib "c"
+extern fn rt_strings_pad_left: (s :&str, w :i64, pad :&str) :str lib "c"

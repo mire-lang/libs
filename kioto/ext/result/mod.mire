@@ -1,0 +1,31 @@
+module result
+pub fn ok: (value) {
+    return {tag: "ok", value: value}
+}
+
+pub fn err: (message: str) {
+    return {tag: "err", error: message}
+}
+
+pub fn is_ok: (r) :bool {
+    return dicts.get(r "tag") == "ok"
+}
+
+pub fn is_err: (r) :bool {
+    return dicts.get(r "tag") != "ok"
+}
+
+pub fn map_err: (r next_error: str) {
+    set r_tag = r
+    if dicts.get(r_tag "tag") == "ok" { return r }
+    return {tag: "err", error: next_error}
+}
+
+pub fn unwrap: (r) {
+    set r_tag = r
+    if dicts.get(r_tag "tag") == "ok" {
+        set r_val = r
+        return dicts.get(r_val "value")
+    }
+    return mu
+}

@@ -1,0 +1,5 @@
+module gpu
+extern fn pal_gpu_snapshot: () :map[str i64] lib "c"
+
+pub fn available: () :bool { return true }
+pub fn snapshot: () :map[str i64] { return pal_gpu_snapshot() }

@@ -1,0 +1,8 @@
+module term
+extern fn pal_term_style: (s :str, style :str) :str lib "c"
+extern fn pal_term_hr: (ch :str, len :i64) :str lib "c"
+extern fn pal_term_clear: () :str lib "c"
+
+pub fn style: (s :str, style :str) :str { return pal_term_style(s, style) }
+pub fn hr: (ch :str, len :i64) :str { return pal_term_hr(ch, len) }
+pub fn clear: () :str { return pal_term_clear() }

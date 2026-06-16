@@ -1,0 +1,24 @@
+module cpu
+extern fn pal_cpu_mark: () :i64 lib "c"
+extern fn pal_cpu_elapsed_ms: (mark :i64) :i64 lib "c"
+extern fn pal_cpu_elapsed_ns: (mark :i64) :i64 lib "c"
+extern fn rt_cpu_elapsed_ms_str: (mark :i64) :str lib "c"
+extern fn pal_cpu_cycles_est: (mark :i64) :i64 lib "c"
+extern fn pal_cpu_count: () :i64 lib "c"
+extern fn pal_cpu_freq_mhz: () :i64 lib "c"
+extern fn pal_cpu_time_ns: () :i64 lib "c"
+extern fn pal_cpu_time_ms: () :i64 lib "c"
+extern fn pal_cpu_loadavg: () :vec[f64] lib "c"
+extern fn pal_cpu_snapshot: () :map[str i64] lib "c"
+
+pub fn time_ns: () :i64 { return pal_cpu_time_ns() }
+pub fn time_ms: () :i64 { return pal_cpu_time_ms() }
+pub fn mark: () :i64 { return pal_cpu_mark() }
+pub fn elapsed: (mark :i64) :i64 { return pal_cpu_elapsed_ms(mark) }
+pub fn elapsed_ms: (mark :i64) :i64 { return pal_cpu_elapsed_ms(mark) }
+pub fn elapsed_ns: (mark :i64) :i64 { return pal_cpu_elapsed_ns(mark) }
+pub fn count: () :i64 { return pal_cpu_count() }
+pub fn freq_mhz: () :i64 { return pal_cpu_freq_mhz() }
+pub fn cycles_est: (mark :i64) :i64 { return pal_cpu_cycles_est(mark) }
+pub fn loadavg: () :vec[f64] { return pal_cpu_loadavg() }
+pub fn snapshot: () :map[str i64] { return pal_cpu_snapshot() }

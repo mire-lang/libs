@@ -1,0 +1,3 @@
+[project]
+name = "gpu"
+entry = "mod.mire"

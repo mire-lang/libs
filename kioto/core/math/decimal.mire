@@ -1,0 +1,149 @@
+module decimal
+load kioto::math::_externs
+
+struct Decimal {
+    mantissa :i64
+    scale :i64
+}
+
+fn pow10: (exp :i64) :i64 {
+    set result = 1 :i64 mut
+    set i = 0 :i64 mut
+    while i < exp {
+        set result = result * 10
+        set i = i + 1
+    }
+    return result
+}
+
+pub fn new: (mantissa :i64, scale :i64) :Decimal {
+    return normalize((Decimal mantissa: mantissa, scale: scale))
+}
+
+pub fn zero: () :Decimal { return new(0, 0) }
+pub fn from_int: (value :i64) :Decimal { return new(value, 0) }
+
+pub fn mantissa: (value :Decimal) :i64 { return value.mantissa }
+pub fn scale: (value :Decimal) :i64 { return value.scale }
+
+pub fn normalize: (value :Decimal) :Decimal {
+    set m = value.mantissa mut
+    set s = value.scale mut
+    if m == 0 { return zero() }
+    while s > 0 && m % 10 == 0 {
+        set m = m / 10
+        set s = s - 1
+    }
+    return (Decimal mantissa: m, scale: s)
+}
+
+fn segment_to_i64: (segment :str) :i64 {
+    if rt_strings_len(segment) == 0 { return 0 }
+    return rt_string_to_i64(segment)
+}
+
+pub fn from_str: (text :str) :Decimal {
+    set clean = rt_strings_strip(text) mut
+    if rt_strings_len(clean) == 0 { return zero() }
+
+    set negative = false :bool mut
+    if rt_strings_starts_with(clean "-") {
+        set negative = true
+        set clean = rt_strings_substr(clean 1 rt_strings_len(clean) - 1)
+    }
+    if rt_strings_starts_with(clean "+") {
+        set clean = rt_strings_substr(clean 1 rt_strings_len(clean) - 1)
+    }
+
+    set dot = rt_strings_index_of(clean ".")
+    if dot < 0 {
+        set whole = clean
+        set whole_value = segment_to_i64(whole)
+        return normalize((Decimal mantissa: whole_value, scale: 0))
+    }
+    set whole = rt_strings_substr(clean 0 dot)
+    set frac = rt_strings_substr(clean dot + 1 rt_strings_len(clean) - dot - 1)
+
+    set whole_value = segment_to_i64(whole)
+    set s = rt_strings_len(frac)
+    set frac_value = segment_to_i64(frac)
+    set m = whole_value * pow10(s) + frac_value mut
+    if negative { set m = 0 - m }
+    return normalize((Decimal mantissa: m, scale: s))
+}
+
+pub fn to_float: (value :Decimal) :f64 {
+    set m = value.mantissa :f64
+    set s = value.scale
+    if s == 0 { return m }
+    return m / (pow10(s) :f64)
+}
+
+pub fn to_str: (value :Decimal) :str {
+    set m = value.mantissa mut
+    set s = value.scale
+    if s <= 0 { return str(m) }
+
+    set negative = m < 0
+    if negative { set m = 0 - m }
+
+    set factor = pow10(s)
+    set whole = m / factor
+    set frac = m % factor
+    set frac_text = rt_strings_pad_left(str(frac), s, "0")
+    set result = "{str(whole)}.{frac_text}"
+    if negative { return "-{result}" }
+    return result
+}
+
+pub fn abs: (value :Decimal) :Decimal {
+    set m = value.mantissa mut
+    if m < 0 { set m = 0 - m }
+    return new(m, value.scale)
+}
+
+pub fn neg: (value :Decimal) :Decimal {
+    return new(0 - value.mantissa, value.scale)
+}
+
+pub fn add: (a :Decimal, b :Decimal) :Decimal {
+    set s = basic.max(a.scale, b.scale)
+    set left = a.mantissa * pow10(s - a.scale)
+    set right = b.mantissa * pow10(s - b.scale)
+    return normalize((Decimal mantissa: left + right, scale: s))
+}
+
+pub fn sub: (a :Decimal, b :Decimal) :Decimal {
+    return add(a, neg(b))
+}
+
+pub fn mul: (a :Decimal, b :Decimal) :Decimal {
+    return normalize((Decimal mantissa: a.mantissa * b.mantissa, scale: a.scale + b.scale))
+}
+
+pub fn div_prec: (a :Decimal, b :Decimal, precision :i64) :Decimal {
+    if b.mantissa == 0 { return zero() }
+    set shift = precision + b.scale - a.scale
+    set numerator = a.mantissa mut
+    if shift >= 0 {
+        set numerator = numerator * pow10(shift)
+    } else {
+        set numerator = numerator / pow10(0 - shift)
+    }
+    return normalize((Decimal mantissa: numerator / b.mantissa, scale: precision))
+}
+
+pub fn div: (a :Decimal, b :Decimal) :Decimal {
+    return div_prec(a, b, 12)
+}
+
+pub fn round: (value :Decimal) :i64 {
+    set s = value.scale
+    if s <= 0 { return value.mantissa }
+    set factor = pow10(s)
+    set m = value.mantissa
+    if m >= 0 {
+        return (m + (factor / 2)) / factor
+    }
+    return (m - (factor / 2)) / factor
+}

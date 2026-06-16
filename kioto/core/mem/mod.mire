@@ -1,0 +1,18 @@
+module mem
+extern fn pal_mem_used: () :i64 lib "c"
+extern fn pal_mem_total: () :i64 lib "c"
+extern fn pal_mem_free: () :i64 lib "c"
+extern fn pal_mem_available: () :i64 lib "c"
+extern fn pal_mem_percent: () :i64 lib "c"
+extern fn pal_mem_process_bytes: () :i64 lib "c"
+extern fn pal_mem_snapshot: () :map[str i64] lib "c"
+extern fn pal_mem_format: (bytes :i64) :str lib "c"
+
+pub fn used: () :i64 { return pal_mem_used() }
+pub fn total: () :i64 { return pal_mem_total() }
+pub fn free: () :i64 { return pal_mem_free() }
+pub fn available: () :i64 { return pal_mem_available() }
+pub fn percent: () :i64 { return pal_mem_percent() }
+pub fn process: () :i64 { return pal_mem_process_bytes() }
+pub fn snapshot: () :map[str i64] { return pal_mem_snapshot() }
+pub fn format: (bytes :i64) :str { return pal_mem_format(bytes) }

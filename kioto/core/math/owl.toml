@@ -1,0 +1,11 @@
+[project]
+name = "math"
+entry = "mod.mire"
+
+[exports]
+_externs = "_externs.mire"
+basic    = "basic.mire"
+complex  = "complex.mire"
+decimal  = "decimal.mire"
+random   = "random.mire"
+stats    = "stats.mire"

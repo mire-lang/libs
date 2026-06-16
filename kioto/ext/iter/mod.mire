@@ -1,0 +1,28 @@
+module iter
+extern fn rt_lists_len: (list :&list) :i64 lib "c"
+extern fn rt_lists_get_i64: (list :&list, index :i64) :i64 lib "c"
+extern fn rt_lists_slice: (list :&list, start :i64, end :i64) :vec[i64] lib "c"
+
+pub fn size: (items :&list) :i64 {
+    return rt_lists_len(items)
+}
+
+pub fn head: (items :&list) :i64 {
+    return rt_lists_get_i64(items 0)
+}
+
+pub fn tail: (items :&list) :vec[i64] {
+    return rt_lists_slice(items 1 rt_lists_len(items))
+}
+
+pub fn take: (items :&list n :i64) :vec[i64] {
+    return rt_lists_slice(items 0 n)
+}
+
+pub fn skip: (items :&list n :i64) :vec[i64] {
+    return rt_lists_slice(items n rt_lists_len(items))
+}
+
+pub fn collect: (items :vec[i64]) :vec[i64] {
+    return items
+}

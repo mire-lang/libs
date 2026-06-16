@@ -1,0 +1,26 @@
+module types
+pub fn is_int: (value) :bool {
+    return value of i64
+}
+
+pub fn is_str: (value) :bool {
+    return value of str
+}
+
+pub fn is_bool: (value) :bool {
+    return value of bool
+}
+
+pub fn to_str: (value) :str {
+    return str(value)
+}
+
+pub fn type_name: (value) :str {
+    if value of i64 { return "i64" }
+    if value of str { return "str" }
+    if value of bool { return "bool" }
+    if value of f64 { return "f64" }
+    if value of vec[anything] { return "vec" }
+    if value of map[anything anything] { return "map" }
+    return "unknown"
+}

@@ -1,0 +1,32 @@
+module fs
+extern fn pal_fs_read: (path :&str) :str lib "c"
+extern fn pal_fs_write: (path :&str, data :&str) lib "c"
+extern fn pal_fs_append: (path :&str, data :&str) lib "c"
+extern fn pal_fs_exists: (path :&str) :bool lib "c"
+extern fn pal_fs_size: (path :&str) :i64 lib "c"
+extern fn pal_fs_copy: (src :&str, dst :&str) lib "c"
+extern fn pal_fs_move: (src :&str, dst :&str) lib "c"
+extern fn pal_fs_delete: (path :&str) lib "c"
+extern fn pal_fs_list: (path :&str) :vec[str] lib "c"
+extern fn pal_fs_mkdir: (path :&str) lib "c"
+extern fn pal_fs_rmdir: (path :&str) lib "c"
+extern fn pal_fs_join: (a :&str, b :&str) :str lib "c"
+extern fn pal_fs_dir: (path :&str) :str lib "c"
+extern fn pal_fs_name: (path :&str) :str lib "c"
+extern fn pal_fs_ext: (path :&str) :str lib "c"
+
+pub fn read: (path :&str) :str { return pal_fs_read(*path) }
+pub fn write: (path :&str, data :&str) { pal_fs_write(*path, *data) }
+pub fn append: (path :&str, data :&str) { pal_fs_append(*path, *data) }
+pub fn exists: (path :&str) :bool { return pal_fs_exists(*path) }
+pub fn size: (path :&str) :i64 { return pal_fs_size(*path) }
+pub fn copy: (src :&str, dst :&str) { pal_fs_copy(*src, *dst) }
+pub fn move: (src :&str, dst :&str) { pal_fs_move(*src, *dst) }
+pub fn drop: (path :&str) { pal_fs_delete(*path) }
+pub fn list: (path :&str) :vec[str] { return pal_fs_list(*path) }
+pub fn mkdir: (path :&str) { pal_fs_mkdir(*path) }
+pub fn rmdir: (path :&str) { pal_fs_rmdir(*path) }
+pub fn join: (a :&str, b :&str) :str { return pal_fs_join(*a, *b) }
+pub fn dir: (path :&str) :str { return pal_fs_dir(*path) }
+pub fn name: (path :&str) :str { return pal_fs_name(*path) }
+pub fn ext: (path :&str) :str { return pal_fs_ext(*path) }

@@ -1,0 +1,23 @@
+module dicts
+extern fn rt_dicts_len: (dict) :i64 lib "c"
+extern fn rt_dicts_keys: (dict) :vec[str] lib "c"
+extern fn rt_dicts_values: (dict) :vec[i64] lib "c"
+extern fn rt_dicts_has: (dict, key :str) :bool lib "c"
+extern fn rt_dicts_get: (dict, key :str) :str lib "c"
+extern fn rt_dicts_set: (dict, key :str, value) lib "c"
+extern fn rt_dicts_remove: (dict, key :str) lib "c"
+extern fn rt_dicts_entries: (dict) :i64 lib "c"
+extern fn rt_dicts_merge: (dict, other) lib "c"
+extern fn rt_dicts_is_empty: (dict) :bool lib "c"
+
+pub fn len: (dict) :i64 { return rt_dicts_len(dict) }
+pub fn keys: (dict) :vec[str] { return rt_dicts_keys(dict) }
+pub fn values: (dict) :vec[i64] { return rt_dicts_values(dict) }
+pub fn has: (dict, key :str) :bool { return rt_dicts_has(dict, key) }
+pub fn get: (dict, key :str) :str { return rt_dicts_get(dict, key) }
+pub fn set: (dict, key :str, value) { rt_dicts_set(dict, key, value) }
+pub fn remove: (dict, key :str) { rt_dicts_remove(dict, key) }
+pub fn delete: (dict, key :str) { rt_dicts_remove(dict, key) }
+pub fn entries: (dict) :i64 { return rt_dicts_entries(dict) }
+pub fn merge: (dict, other) { rt_dicts_merge(dict, other) }
+pub fn is_empty: (dict) :bool { return rt_dicts_is_empty(dict) }

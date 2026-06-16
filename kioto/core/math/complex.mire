@@ -1,0 +1,90 @@
+module complex
+struct Complex {
+    re :f64
+    im :f64
+}
+
+pub fn new: (re :f64, im :f64) :Complex {
+    return (Complex re: re, im: im)
+}
+
+pub fn real: (z :Complex) :f64 { return z.re }
+pub fn imag: (z :Complex) :f64 { return z.im }
+
+pub fn zero: () :Complex { return new(0.0, 0.0) }
+pub fn one: () :Complex { return new(1.0, 0.0) }
+pub fn i: () :Complex { return new(0.0, 1.0) }
+
+pub fn conj: (z :Complex) :Complex { return new(z.re, 0.0 - z.im) }
+pub fn abs: (z :Complex) :f64 { return basic.hypot(z.re, z.im) }
+pub fn arg: (z :Complex) :f64 { return basic.atan2(z.im, z.re) }
+
+fn c_exp: (z :Complex) :Complex {
+    set e = basic.exp(z.re)
+    return new(e * basic.cos(z.im), e * basic.sin(z.im))
+}
+
+fn c_log: (z :Complex) :Complex {
+    return new(basic.log(basic.hypot(z.re, z.im)), arg(z))
+}
+
+fn c_sqrt: (z :Complex) :Complex {
+    set real_part = basic.sqrt((basic.hypot(z.re, z.im) + z.re) / 2.0)
+    set imag_part = basic.sqrt((basic.hypot(z.re, z.im) - z.re) / 2.0) mut
+    if z.im < 0.0 {
+        set imag_part = 0.0 - imag_part
+    }
+    return new(real_part, imag_part)
+}
+
+pub fn add: (a :Complex, b :Complex) :Complex {
+    return new(a.re + b.re, a.im + b.im)
+}
+
+pub fn sub: (a :Complex, b :Complex) :Complex {
+    return new(a.re - b.re, a.im - b.im)
+}
+
+pub fn mul: (a :Complex, b :Complex) :Complex {
+    set ar = a.re
+    set ai = a.im
+    set br = b.re
+    set bi = b.im
+    return new((ar * br) - (ai * bi), (ar * bi) + (ai * br))
+}
+
+pub fn scale: (z :Complex, factor :f64) :Complex {
+    return new(z.re * factor, z.im * factor)
+}
+
+pub fn div: (a :Complex, b :Complex) :Complex {
+    set ar = a.re
+    set ai = a.im
+    set br = b.re
+    set bi = b.im
+    set denom = (br * br) + (bi * bi)
+    return new(((ar * br) + (ai * bi)) / denom, ((ai * br) - (ar * bi)) / denom)
+}
+
+pub fn exp: (z :Complex) :Complex { return c_exp(z) }
+
+pub fn log: (z :Complex) :Complex { return c_log(z) }
+
+pub fn sqrt: (z :Complex) :Complex { return c_sqrt(z) }
+
+pub fn pow: (z :Complex, exponent :Complex) :Complex {
+    return c_exp(mul(exponent, c_log(z)))
+}
+
+pub fn from_polar: (radius :f64, angle :f64) :Complex {
+    return new(radius * basic.cos(angle), radius * basic.sin(angle))
+}
+
+pub fn to_str: (z :Complex) :str {
+    set re = str(z.re)
+    set im = z.im
+    if im < 0.0 {
+        return "{re} - {str(0.0 - im)}i"
+    }
+    return "{re} + {str(im)}i"
+}

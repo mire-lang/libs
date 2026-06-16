@@ -1,0 +1,9 @@
+module random
+load kioto::math::_externs
+
+pub fn seed: (seed :i64) { rt_math_random_seed(seed) }
+pub fn u64: () :i64 { return rt_math_random_u64() }
+pub fn i64: () :i64 { return rt_math_random_i64() }
+pub fn f64: () :f64 { return rt_math_random_f64() }
+pub fn bool: () :bool { return rt_math_random_bool() }
+pub fn range: (min :i64, max :i64) :i64 { return rt_math_random_range_i64(min, max) }

@@ -1,0 +1,27 @@
+module stats
+// Statistics on i64 collections (read-only)
+extern fn rt_math_sum_i64: (list :&vec[i64]) :i64 lib "c"
+extern fn rt_math_mean_i64: (list :&vec[i64]) :f64 lib "c"
+extern fn rt_math_variance_i64: (list :&vec[i64]) :f64 lib "c"
+extern fn rt_math_stddev_i64: (list :&vec[i64]) :f64 lib "c"
+extern fn rt_math_min_list_i64: (list :&vec[i64]) :i64 lib "c"
+extern fn rt_math_max_list_i64: (list :&vec[i64]) :i64 lib "c"
+extern fn rt_math_median_i64: (list :&vec[i64]) :f64 lib "c"
+
+// Range generation (returns new vec)
+extern fn rt_math_range_i64: (end :i64) :vec[i64] lib "c"
+extern fn rt_math_range_between_i64: (start :i64, end :i64) :vec[i64] lib "c"
+extern fn rt_math_range_step_i64: (start :i64, end :i64, step :i64) :vec[i64] lib "c"
+
+pub fn sum: (list :&vec[i64]) :i64 { return rt_math_sum_i64(list) }
+pub fn mean: (list :&vec[i64]) :f64 { return rt_math_mean_i64(list) }
+pub fn avg: (list :&vec[i64]) :f64 { return rt_math_mean_i64(list) }
+pub fn variance: (list :&vec[i64]) :f64 { return rt_math_variance_i64(list) }
+pub fn stddev: (list :&vec[i64]) :f64 { return rt_math_stddev_i64(list) }
+pub fn min_list: (list :&vec[i64]) :i64 { return rt_math_min_list_i64(list) }
+pub fn max_list: (list :&vec[i64]) :i64 { return rt_math_max_list_i64(list) }
+pub fn median: (list :&vec[i64]) :f64 { return rt_math_median_i64(list) }
+
+pub fn range: (end :i64) :vec[i64] { return rt_math_range_i64(end) }
+pub fn range_between: (start :i64, end :i64) :vec[i64] { return rt_math_range_between_i64(start, end) }
+pub fn range_step: (start :i64, end :i64, step :i64) :vec[i64] { return rt_math_range_step_i64(start, end, step) }

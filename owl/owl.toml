@@ -1,0 +1,10 @@
+[project]
+name = "owl"
+version = "0.13.1"
+entry = "code/main.mire"
+
+[dependencies]
+kioto = "latest"
+
+[exports]
+owl = "code/main"

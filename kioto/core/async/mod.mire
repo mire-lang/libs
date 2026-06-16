@@ -1,0 +1,40 @@
+module async
+extern fn pal_proc_spawn: (cmd :str) :i64 lib "c"
+extern fn pal_proc_wait: (pid :i64) :i64 lib "c"
+extern fn pal_proc_exists: (pid :i64) :i64 lib "c"
+
+pub fn ready: (value :str) :map[str str] {
+    return {"state": "done", "value": value}
+}
+
+pub fn failed: (message :str) :map[str str] {
+    return {"state": "error", "error": message}
+}
+
+pub fn is_done: (task :map[str str]) :bool {
+    return dicts.get(task "state") == "done"
+}
+
+pub fn is_error: (task :map[str str]) :bool {
+    return dicts.get(task "state") == "error"
+}
+
+pub fn value: (task :map[str str] fallback :str) :str {
+    return dicts.get(task "value")
+}
+
+pub fn error: (task :map[str str]) :str {
+    return dicts.get(task "error")
+}
+
+pub fn spawn: (cmd :str) :i64 {
+    return pal_proc_spawn(cmd)
+}
+
+pub fn join: (pid :i64) :i64 {
+    return pal_proc_wait(pid)
+}
+
+pub fn exists: (pid :i64) :bool {
+    return pal_proc_exists(pid) != 0
+}

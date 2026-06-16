@@ -1,0 +1,949 @@
+load kioto
+
+pub fn mkdir_p: (path :str) {
+    use proc_run("mkdir -p " + path)
+}
+
+pub fn rm_RF: (path :str) {
+    use proc_run("rm -rf " + path)
+}
+
+pub fn toml_get: (file :str section :str key :str) :str {
+    if !fs_exists(file) {
+        return ""
+    }
+
+    set content = fs_read(file)
+    set lines = strings::split(content "\n")
+    set n = len(lines)
+    set found_section = false :bool mut
+    set i = 0 :i64 mut
+
+    while i < n {
+        set raw_line = lists::get(lines i)
+        set line = strings::trim(raw_line)
+        set line_is_empty = line == ""
+
+        if line_is_empty {
+            set i += 1
+        } else {
+            set parts_hash = strings::split(line "#")
+            set raw_clean = lists::get(parts_hash 0)
+            set line_clean = strings::trim(raw_clean)
+            set clean_is_empty = line_clean == ""
+
+            if clean_is_empty {
+                set i += 1
+            } else {
+                set open = strings::split(line_clean "[")
+                set is_header = len(open) >= 2
+
+                if is_header {
+                    set close = strings::split(lists::get(open 1) "]")
+                    if len(close) >= 1 {
+                        set sec_name = strings::trim(lists::get(close 0))
+                        if sec_name == section {
+                            set found_section = true
+                        } else {
+                            if found_section { return "" }
+                        }
+                    }
+                }
+
+                if found_section {
+                    set kv = strings::split(line_clean "=")
+                    set k_count = len(kv)
+                    if k_count >= 2 {
+                        set k = strings::trim(lists::get(kv 0))
+                        if k == key {
+                            set raw_val = lists::get(kv 1)
+                            set j = 2 :i64 mut
+                            set full_val = raw_val :str mut
+                            while j < len(kv) {
+                                set full_val = full_val + "=" + lists::get(kv j)
+                                set j += 1
+                            }
+                            set trimmed_val = strings::trim(full_val)
+                            return strings::replace(trimmed_val "\"" "")
+                        }
+                    }
+                }
+
+                set i += 1
+            }
+        }
+    }
+
+    return ""
+}
+
+pub fn toml_keys: (file :str section :str) :str {
+    if !fs_exists(file) {
+        return ""
+    }
+
+    set content = fs_read(file)
+    set lines = strings::split(content "\n")
+    set n = len(lines)
+    set found_section = false :bool mut
+    set result = "" :str mut
+    set i = 0 :i64 mut
+
+    while i < n {
+        set raw_line = lists::get(lines i)
+        set line = strings::trim(raw_line)
+        set line_is_empty = line == ""
+
+        if line_is_empty {
+            set i += 1
+        } else {
+            set parts_hash = strings::split(line "#")
+            set raw_clean = lists::get(parts_hash 0)
+            set line_clean = strings::trim(raw_clean)
+            set clean_is_empty = line_clean == ""
+
+            if clean_is_empty {
+                set i += 1
+            } else {
+                set open = strings::split(line_clean "[")
+                set is_header = len(open) >= 2
+
+                if is_header {
+                    set close = strings::split(lists::get(open 1) "]")
+                    if len(close) >= 1 {
+                        set sec_name = strings::trim(lists::get(close 0))
+                        if sec_name == section {
+                            set found_section = true
+                        } else {
+                            if found_section { return result }
+                        }
+                    }
+                }
+
+                if found_section {
+                    set kv = strings::split(line_clean "=")
+                    set k_count = len(kv)
+                    if k_count >= 2 {
+                        set k = strings::trim(lists::get(kv 0))
+                        set skip_header = strings::starts_with(k "[")
+                        if !skip_header {
+                            if result == "" {
+                                set result = k
+                            } else {
+                                set result = result + "\n" + k
+                            }
+                        }
+                    }
+                }
+
+                set i += 1
+            }
+        }
+    }
+
+    return result
+}
+
+pub fn warn_line: (tag :str msg :str) {
+    use dasu("warning[" + tag + "] " + msg)
+}
+
+pub fn error_line: (tag :str msg :str) {
+    use dasu("error[" + tag + "] " + msg)
+}
+
+pub fn profile_record: (_file :str _profile :str _opt :str _started_ms :i64 _finished_ms :i64 _cache_hit :bool) {
+}
+
+pub fn profile_record_check: (_file :str _warn_total :str _lifecycle_total :str _strict_failed :bool) {
+}
+
+pub fn profile_show: (_as_json :bool _show_history :bool _compare :bool) {
+    if _as_json {
+        use dasu("{\"status\":\"ok\",\"show_history\":" + str(_show_history) + ",\"compare\":" + str(_compare) + "}")
+        return
+    }
+    use dasu("profile[OWL] ── Build Profile")
+    if _show_history {
+        use dasu("  history: enabled")
+    }
+    if _compare {
+        use dasu("  compare: enabled")
+    }
+    use dasu("╰─ profile complete")
+}
+
+fn extract_fn_name: (line :str) :str {
+    set t = strings::trim(line)
+    if strings::starts_with(t "pub fn ") {
+        set after = strings::replace_first(t "pub fn " "")
+        set parts = strings::split(after ":")
+        return strings::trim(lists::get(parts 0))
+    }
+    if strings::starts_with(t "fn ") {
+        set after = strings::replace_first(t "fn " "")
+        set parts = strings::split(after ":")
+        return strings::trim(lists::get(parts 0))
+    }
+    return ""
+}
+
+fn scan_file: (path :str) :str {
+    set result = "" :str mut
+    if !fs_exists(path) { return result }
+    set content = fs_read(path)
+    set mylines = strings::split(content "\n")
+    set n = len(mylines)
+    set i = 0 :i64 mut
+    while i < n {
+        set line = strings::trim(lists::get(mylines i))
+        if strings::starts_with(line "![test") {
+            set desc = "" :str mut
+            set after_bracket = strings::replace_first(line "![test]" "")
+            set after_trim = strings::trim(after_bracket)
+            if after_trim != "" {
+                set desc = after_trim
+            }
+            set j = i + 1
+            if j < n {
+                set next = strings::trim(lists::get(mylines j))
+                set func = extract_fn_name(next)
+                if func != "" {
+                    set result = result + path + "|" + func + "|" + desc + "\n---\n"
+                }
+            }
+        }
+        set i += 1
+    }
+    return result
+}
+
+fn scan_tests: (test_dir :str) :str {
+    set result = "" :str mut
+    if !fs_exists(test_dir) { return result }
+    set dirs = test_dir :str mut
+    while dirs != "" {
+        set parts = strings::split(dirs "\n")
+        set dir = lists::get(parts 0)
+        set dirs = "" :str mut
+        set k = 1 :i64 mut
+        while k < len(parts) {
+            set dirs = dirs + lists::get(parts k) + "\n"
+            set k += 1
+        }
+        set entries = fs_list(dir)
+        set n = len(entries)
+        set i = 0 :i64 mut
+        while i < n {
+            set entry = lists::get(entries i)
+            if entry != "." && entry != ".." {
+                set full = dir + "/" + entry
+                if fs_is_dir(full) {
+                    set dirs = dirs + full + "\n"
+                } else {
+                    if strings::ends_with(entry ".mire") {
+                        set result = result + scan_file(full)
+                    }
+                }
+            }
+            set i += 1
+        }
+    }
+    return result
+}
+
+fn generate_harness: (data :str filter :str) :str {
+    set records = strings::split(data "---\n")
+    set n = len(records)
+    set load_lines = [""] :vec[str] mut
+    set last_load = "" :str mut
+    set body = "" :str mut
+    set count = 0 :i64 mut
+    set i = 0 :i64 mut
+    while i < n {
+        set rec = strings::trim(lists::get(records i))
+        if rec != "" {
+            set fields = strings::split(rec "|")
+            set m = len(fields)
+            set f0 = "" :str mut
+            set f1 = "" :str mut
+            set f2 = "" :str mut
+            set ki = 0 :i64 mut
+            while ki < m {
+                set fv = strings::trim(lists::get(fields ki))
+                if ki == 0 { set f0 = fv }
+                if ki == 1 { set f1 = fv }
+                if ki == 2 { set f2 = fv }
+                set ki += 1
+            }
+            if f1 != "" {
+                set f0_copy = lists::get(strings::split(f0 "\n") 0)
+                set f1_raw = lists::get(strings::split(f1 "\n") 0)
+                set f2_copy = lists::get(strings::split(f2 "\n") 0)
+                set imp_src = lists::get(strings::split(f0_copy ".") 0)
+                set imp_path = "./" + imp_src
+                set desc = lists::get(strings::split(f1 "\n") 0) :str mut
+                if f2_copy != "" { set desc = f2_copy }
+                set call_fn = lists::get(strings::split(f1_raw "\n") 0)
+                set call_line = "    set ok = " + call_fn + "()\n"
+                set skip = false :bool mut
+                if filter != "" {
+                    set parts = strings::split(call_fn + " " + desc filter)
+                    if len(parts) <= 1 { set skip = true }
+                }
+                if !skip {
+                    set load_line = "load " + imp_path
+                    if load_line != last_load {
+                    set load_lines = lists::push(load_lines "load " + imp_path)
+                    set last_load = load_line
+                }
+                    set body = body + "    use dasu(\"running test\")\n"
+                    set body = body + call_line
+                    set body = body + "    if ok {\n"
+                    set body = body + "        set passed = passed + 1\n"
+                    set body = body + "        use dasu(\"ok\")\n"
+                    set body = body + "    } else {\n"
+                    set body = body + "        set failed = failed + 1\n"
+                    set body = body + "        use dasu(\"FAIL\")\n"
+                    set body = body + "    }\n"
+                    set count = count + 1
+                }
+            }
+        }
+        set i += 1
+    }
+    if count == 0 { return "" }
+    set loads = strings::join(load_lines "\n") + "\n"
+    return "load kioto\n" + loads + "pub fn main: () {\n    set ok = false :bool mut\n    set passed = 0 :i64 mut\n    set failed = 0 :i64 mut\n" + body + "    use dasu(\"\")\n    if failed > 0 {\n        use dasu(\"Some tests failed.\")\n    } else {\n        use dasu(\"All tests passed.\")\n    }\n}\n"
+}
+
+fn drop_harness: () {
+    if fs_exists("_test_harness.mire") { fs_drop("_test_harness.mire") }
+}
+
+pub fn run_tests: (filter :str compiler_cmd :str) {
+    use dasu("")
+    use dasu("== owl test ==")
+    use dasu("")
+    set test_dir = "tests"
+    if !fs_exists(test_dir) {
+        use dasu("Error: '" + test_dir + "' not found")
+        return
+    }
+    use dasu("Scanning " + test_dir + "...")
+    set data = scan_tests(test_dir)
+    if data == "" {
+        use dasu("No tests found.")
+        return
+    }
+    set filter_msg = filter
+    set harness = generate_harness(data filter)
+    if harness == "" {
+        use dasu("No tests match filter: " + filter_msg)
+        return
+    }
+    fs_write("_test_harness.mire" harness)
+    if fs_exists("bin/debug/_test_harness") { fs_drop("bin/debug/_test_harness") }
+    if fs_exists("bin/release/_test_harness") { fs_drop("bin/release/_test_harness") }
+    if fs_exists("bin/_test_harness") { fs_drop("bin/_test_harness") }
+    use dasu("Building harness...")
+    set build_output = proc_run(compiler_cmd + " build _test_harness.mire --debug")
+    set harness_bin = "bin/debug/_test_harness" :str mut
+    if !fs_exists(harness_bin) {
+        if fs_exists("bin/release/_test_harness") {
+            set harness_bin = "bin/release/_test_harness"
+        } else {
+            if fs_exists("bin/_test_harness") {
+                set harness_bin = "bin/_test_harness"
+            }
+        }
+    }
+    if !fs_exists(harness_bin) {
+        use dasu("Build failed. Unable to locate compiler binary.")
+        use dasu(build_output)
+        drop_harness()
+        return
+    }
+    use dasu("")
+    set run_output = proc_run("./" + harness_bin)
+    use dasu(run_output)
+    drop_harness()
+}
+
+extern fn rt_vec_get_str: (list :&vec[str], index :i64) :str lib "c"
+extern fn rt_vec_len: (list :&vec[str]) :i64 lib "c"
+extern fn rt_string_to_i64: (value :str) :i64 lib "c"
+
+fn owl_version: () :str { return "0.13.1" }
+fn compiler_version: () :str { return "Avenys 3.8.x" }
+
+fn has_project: () :bool {
+    return fs_exists("owl.toml")
+}
+
+fn ensure_owl_home: () {
+    use proc_run("mkdir -p ~/.owl/modules && [ -f ~/.owl/config.toml ] || printf '[owl]\\nversion = \"0.1.0\"\\n\\n[paths]\\nmodules = \"modules\"\\n' > ~/.owl/config.toml")
+}
+
+fn check_print_warning_summary: (file :str out :str strict :str) :str {
+    set _lines = strings::split(out "\n")
+    set total = 0 :i64 mut
+    set w28 = 0 :i64 mut
+    set w29 = 0 :i64 mut
+    set w30 = 0 :i64 mut
+    set w31 = 0 :i64 mut
+    set w32 = 0 :i64 mut
+    set w33 = 0 :i64 mut
+    set n = rt_vec_len(_lines)
+    set i = 0 :i64 mut
+    while i < n {
+        set line = rt_vec_get_str(_lines i)
+        if len(strings::split(line "warning[")) > 1 { set total += 1 }
+        if len(strings::split(line "warning[W0028]")) > 1 { set w28 += 1 }
+        if len(strings::split(line "warning[W0029]")) > 1 { set w29 += 1 }
+        if len(strings::split(line "warning[W0030]")) > 1 { set w30 += 1 }
+        if len(strings::split(line "warning[W0031]")) > 1 { set w31 += 1 }
+        if len(strings::split(line "warning[W0032]")) > 1 { set w32 += 1 }
+        if len(strings::split(line "warning[W0033]")) > 1 { set w33 += 1 }
+        set i += 1
+    }
+    set lifecycle = w28 + w29 + w30 + w31 + w32 + w33
+
+    use dasu("check[OWL] ── " + file)
+    use dasu("  total warnings: " + str(total))
+    use dasu("  lifecycle warnings: " + str(lifecycle))
+    if strict == "1" && total > 0 {
+        use dasu("  strict: failed")
+    } else {
+        use dasu("  strict: pass")
+    }
+    return str(total) + "|" + str(lifecycle)
+}
+
+fn compile_pipeline: (args :vec[str] is_run :bool) {
+    set file = "code/main.mire" :str mut
+    set profile = "debug" :str mut
+    set opt = "0" :str mut
+    set pass = ""
+    set n = rt_vec_len(args)
+    set i = 2 :i64 mut
+    while i < n {
+        set a = rt_vec_get_str(args i)
+        if a == "--debug" || a == "-d" {
+            set profile = "debug"
+            set opt = "0"
+        } else {
+            if a == "--release" || a == "-r" {
+                set profile = "release"
+                set opt = "3"
+            } else {
+                if a == "-O" || a == "--opt-level" {
+                    set i += 1
+                    if i < n { set opt = rt_vec_get_str(args i) }
+                } else {
+                    if strings::starts_with(a "-O") && len(a) > 2 {
+                        set opt = strings::replace(a "-O" "")
+                    } else {
+                        if !strings::starts_with(a "-") && file == "code/main.mire" {
+                            set file = a
+                        }
+                    }
+                }
+            }
+        }
+        set i += 1
+    }
+
+    set is_proj = has_project()
+    if !is_proj {
+        use warn_line("OWL0001" "no project found; using local .cache and bin/")
+    }
+
+    if file == "" { set file = "code/main.mire" }
+    if !fs_exists(file) {
+        use error_line("OWL0002" "input not found: " + file)
+        return
+    }
+
+    if is_proj {
+        use mkdir_p("bin/.cache")
+        use mkdir_p("bin")
+    } else {
+        use mkdir_p(".cache")
+        use mkdir_p("bin")
+    }
+
+    if is_run {
+        set bin_path = "bin/main"
+        if fs_exists(bin_path) {
+            set fast_cmd = bin_path :str mut
+            if pass != "" { set fast_cmd = fast_cmd + " " + pass }
+            use dasu(proc_run(fast_cmd))
+            return
+        }
+    }
+
+    set cmd = "mire" :str mut
+    if is_run { set cmd = cmd + " run " + file } else { set cmd = cmd + " build " + file }
+    if profile == "release" { set cmd = cmd + " --release" } else { set cmd = cmd + " --debug" }
+    set cmd = cmd + " -O " + opt
+    if is_run && pass != "" { set cmd = cmd + " -- " + pass }
+    set out = proc_run(cmd)
+    use dasu(out)
+}
+
+fn cmd_new: (name :str) {
+    set n_exists = name
+    if fs_exists(n_exists) {
+        use dasu("Error: directory already exists")
+        return
+    }
+
+    set n1 = name
+    set n2 = name
+    set n3 = name
+    set n4 = name
+    set n5 = name
+    set n6 = name
+    set n7 = name
+    use mkdir_p(n1 + "/code")
+    use mkdir_p(n2 + "/bin")
+    use mkdir_p(n3 + "/tests")
+    use mkdir_p(n4 + "/docs")
+    use fs_write(n5 + "/owl.toml", "[owl]\nversion = \"1.0.0\"\n\n[project]\nname = \"" + name + "\"\nversion = \"0.1.0\"\nentry = \"code/main.mire\"\ndescription = \"\"\n\n[dependencies]\n\n[compiler]\ncmd = \"mire\"\n\n[build]\ndefault_profile = \"debug\"\ndefault_opt_level = \"0\"\n")
+    use proc_run("printf 'pub fn main: () \\173\\n    use dasu(\"Welcome\")\\n\\175\\n' > " + n6 + "/code/main.mire")
+    use proc_run("printf 'pub fn main: () \\173\\n    use dasu(\"ok\")\\n\\175\\n' > " + n7 + "/tests/smoke.mire")
+    use dasu("Project created: " + name)
+}
+
+fn upsert_manifest_dependency: (file :str name :str entry :str) {
+    if !fs_exists(file) {
+        use fs_write(file, "[owl]\nversion = \"1.0.0\"\n\n[dependencies]\n" + entry + "\n")
+        return
+    }
+
+    set content = fs_read(file)
+    if content == "" {
+        use fs_write(file, "[owl]\nversion = \"1.0.0\"\n\n[dependencies]\n" + entry + "\n")
+        return
+    }
+
+    set _lines = strings::split(content "\n")
+    set out = "" :str mut
+    set in_deps = false :bool mut
+    set inserted = false :bool mut
+    set dep_prefix = name + " = " :str mut
+
+    set n = rt_vec_len(_lines)
+    set i = 0 :i64 mut
+    while i < n {
+        set line = rt_vec_get_str(_lines i)
+        set trimmed = strings::trim(line)
+        if trimmed == "[dependencies]" {
+            set in_deps = true
+            set out = out + line + "\n" + entry + "\n"
+            set inserted = true
+        } else {
+            if in_deps {
+                if strings::starts_with(trimmed "[") {
+                    set in_deps = false
+                    set out = out + line + "\n"
+                } else {
+                    if !strings::starts_with(trimmed dep_prefix) {
+                        set out = out + line + "\n"
+                    }
+                }
+            } else {
+                set out = out + line + "\n"
+            }
+        }
+        set i += 1
+    }
+
+    if !inserted {
+        if out != "" && !strings::ends_with(out "\n") {
+            set out = out + "\n"
+        }
+        set out = out + "\n[dependencies]\n" + entry + "\n"
+    }
+
+    use fs_write(file, out)
+}
+
+fn cmd_add: (args :vec[str]) {
+    set n = rt_vec_len(args)
+    if n < 3 {
+        use dasu("Usage: owl add <name> [--version <ver>] [--path <path>]")
+        return
+    }
+    set mod_name = rt_vec_get_str(args 2)
+    if strings::trim(mod_name) == "" {
+        use dasu("Error: module name cannot be empty")
+        return
+    }
+    set version = "" :str mut
+    set path = "" :str mut
+
+    set i = 3 :i64 mut
+    while i < n {
+        set a = rt_vec_get_str(args i)
+        if a == "--version" {
+            set i += 1
+            if i < n { set version = rt_vec_get_str(args i) }
+        } else {
+            if a == "--path" {
+                set i += 1
+                if i < n { set path = rt_vec_get_str(args i) }
+            }
+        }
+        set i += 1
+    }
+
+    set v = ""
+    if v != "" {
+        use dasu("Error: " + v)
+        return
+    }
+
+    ensure_owl_home()
+
+    set owl_target = "~/.owl/modules/" + mod_name
+    set module_ready = false :bool mut
+    if path != "" {
+        set full_path = path
+        if !fs_exists(full_path) {
+            use dasu("Error: source path not found: " + full_path)
+            return
+        }
+        use proc_run("rm -rf " + owl_target)
+        if fs_is_dir(full_path) {
+            use proc_run("mkdir -p ~/.owl/modules && cp -R " + full_path + "/. " + owl_target)
+        } else {
+            use proc_run("mkdir -p " + owl_target)
+            use fs_write(owl_target + "/lib.mire" fs_read(full_path))
+        }
+        set module_ready = true
+    } else {
+        if fs_exists(owl_target + "/lib.mire") {
+            set module_ready = true
+        }
+    }
+
+    set module_manifest = strings::replace(mod_name "" "")
+    set dep_entry = "" :str mut
+    if version != "" && path != "" {
+        set dep_entry = module_manifest + " = { version = \"" + version + "\", path = \"" + path + "\" }"
+    } else {
+        if version != "" {
+            set dep_entry = module_manifest + " = \"" + version + "\""
+        } else {
+            if path != "" {
+                set dep_entry = module_manifest + " = { path = \"" + path + "\" }"
+            } else {
+                set dep_entry = module_manifest + " = \"latest\""
+            }
+        }
+    }
+    upsert_manifest_dependency("owl.toml" module_manifest dep_entry)
+
+    if path != "" {
+        use dasu("materialized " + mod_name + " at " + owl_target)
+    } else {
+        if module_ready {
+            use dasu("added dependency: " + mod_name + " (available in ~/.owl/modules)")
+        } else {
+            use warn_line("OWL0011" "dependency registered but not materialized: " + mod_name)
+            use dasu("added dependency: " + mod_name)
+        }
+    }
+}
+
+fn cmd_build: (args :vec[str]) {
+    compile_pipeline(args false)
+}
+
+fn cmd_run: (args :vec[str]) {
+    compile_pipeline(args true)
+}
+
+fn cmd_check: (args :vec[str]) {
+    set file = "code/main.mire" :str mut
+    set all = "0" :str mut
+    set strict = "0" :str mut
+    set deny = "" :str mut
+    set n = rt_vec_len(args)
+    set i = 2 :i64 mut
+    while i < n {
+        set a = rt_vec_get_str(args i)
+        if a == "--all" {
+            set all = "1"
+        } else {
+            if a == "--strict" {
+                set strict = "1"
+                set all = "1"
+            } else {
+                if a == "--deny" {
+                    set i += 1
+                    if i < n {
+                        if deny == "" {
+                            set deny = rt_vec_get_str(args i)
+                        } else {
+                            set deny = deny + "," + rt_vec_get_str(args i)
+                        }
+                    }
+                } else {
+                    if !strings::starts_with(a "-") && file == "code/main.mire" {
+                        set file = a
+                    }
+                }
+            }
+        }
+        set i += 1
+    }
+
+    if !fs_exists(file) {
+        use error_line("OWL0002" "input not found: " + file)
+        return
+    }
+
+    set cmd = "mire check " + file :str mut
+    if all == "1" { set cmd = cmd + " --warn-all" }
+
+    if deny != "" {
+        set _dlist = strings::split(deny ",")
+        set dn = rt_vec_len(_dlist)
+        set di = 0 :i64 mut
+        while di < dn {
+            set dcode = strings::trim(rt_vec_get_str(_dlist di))
+            if dcode != "" { set cmd = cmd + " --deny " + dcode }
+            set di += 1
+        }
+    }
+
+    set out = proc_run(cmd)
+    if len(strings::split(out "error[")) > 1 {
+        use dasu(out)
+    } else {
+        check_print_warning_summary(file out strict)
+    }
+}
+
+fn cmd_profile: (args :vec[str]) {
+    set as_json = false :bool mut
+    set show_history = false :bool mut
+    set compare = false :bool mut
+
+    set n = rt_vec_len(args)
+    set i = 2 :i64 mut
+    while i < n {
+        set a = rt_vec_get_str(args i)
+        if a == "--json" { set as_json = true }
+        if a == "--history" { set show_history = true }
+        if a == "--compare" { set compare = true }
+        set i += 1
+    }
+    profile_show(as_json show_history compare)
+}
+
+fn cmd_clean: (args :vec[str]) {
+    set clean_bin = false :bool mut
+    set clean_cache = false :bool mut
+    set clean_all = false :bool mut
+
+    set n = rt_vec_len(args)
+    set i = 2 :i64 mut
+    while i < n {
+        set a = rt_vec_get_str(args i)
+        if a == "--bin" { set clean_bin = true }
+        if a == "--cache" { set clean_cache = true }
+        if a == "--all" || a == "-A" { set clean_all = true }
+        set i += 1
+    }
+
+    if !clean_bin && !clean_cache && !clean_all {
+        set clean_bin = true
+        set clean_cache = true
+    }
+
+    set cleaned = false :bool mut
+
+    if clean_all || clean_bin {
+        if fs_exists("bin") {
+            use rm_RF("bin")
+            set cleaned = true
+        }
+    }
+    if clean_all || clean_cache {
+        if fs_exists(".cache") {
+            use rm_RF(".cache")
+            set cleaned = true
+        }
+    }
+    if clean_all {
+        if fs_exists("deps") {
+            use rm_RF("deps")
+            set cleaned = true
+        }
+    }
+
+    if fs_exists("_test_harness.mire") {
+        use fs_drop("_test_harness.mire")
+        set cleaned = true
+    }
+
+    if cleaned { use dasu("cleaned artifacts") } else { use dasu("nothing to clean") }
+}
+
+fn cmd_test: (args :vec[str]) {
+    set filter = "" :str mut
+    set n = rt_vec_len(args)
+    set i = 2 :i64 mut
+    while i < n {
+        set a = rt_vec_get_str(args i)
+        if a == "--filter" {
+            set i += 1
+            if i < n { set filter = rt_vec_get_str(args i) }
+        } else {
+            if !strings::starts_with(a "-") && filter == "" {
+                set filter = a
+            }
+        }
+        set i += 1
+    }
+    run_tests(filter "mire")
+}
+
+fn cmd_info: () {
+    use dasu("  ╭─[ project ]")
+    if has_project() {
+    set p_name = toml_get("owl.toml" "project" "name") :str mut
+    if p_name == "" { set p_name = "<none>" }
+    set p_version = toml_get("owl.toml" "project" "version") :str mut
+    if p_version == "" { set p_version = "<none>" }
+    set p_entry = toml_get("owl.toml" "project" "entry") :str mut
+    if p_entry == "" { set p_entry = "code/main.mire" }
+    set p_desc = toml_get("owl.toml" "project" "description") :str mut
+    if p_desc == "" { set p_desc = "<empty>" }
+        use dasu("  │  source  · owl.toml")
+        use dasu("  │  name    · " + p_name)
+        use dasu("  │  version · " + p_version)
+        use dasu("  │  entry   · " + p_entry)
+        use dasu("  │  desc    · " + p_desc)
+    } else {
+        use dasu("  │  source  · <no owl.toml>")
+    }
+
+    set c_target = proc_run("uname -m") :str mut
+    set c_target = strings::trim(c_target) + "-unknown-linux-gnu"
+    set b_profile = "debug" :str mut
+    set b_opt = "0" :str mut
+    if has_project() {
+        set raw_opt = toml_get("owl.toml" "build" "optimization")
+        if raw_opt == "release" {
+            set b_profile = "release"
+            set b_opt = "3"
+        }
+    }
+    use dasu("  ├─[ compiler & build ]")
+    use dasu("  │  engine  · " + compiler_version())
+    use dasu("  │  target  · " + c_target)
+    use dasu("  │  profile · " + b_profile + " (opt-level: " + b_opt + ")")
+
+    set cpath = ".cache" :str mut
+    if has_project() { set cpath = "bin/.cache" }
+    set enabled = "no" :str mut
+    if fs_exists(cpath) { set enabled = "yes" }
+    set max_units = "256" :str mut
+    if has_project() {
+        set cmax = toml_get("owl.toml" "cache" "max_units")
+        if cmax != "" { set max_units = cmax }
+    }
+    use dasu("  ├─[ cache ]")
+    use dasu("  │  status    · " + enabled)
+    use dasu("  │  max_units · " + max_units)
+    use dasu("  │  hit_rate  · n/a")
+    use dasu("  ╰─ project info loaded successfully")
+}
+
+fn print_banner: () {
+    use dasu("Owl v" + owl_version())
+    use dasu("Compiler: " + compiler_version())
+    use dasu("Language: Mire")
+}
+
+fn print_help: () {
+    print_banner()
+    use dasu("")
+    use dasu("Usage: owl <command> [args] [flags]")
+    use dasu("")
+    use dasu("Commands:")
+    use dasu("  add <Name> [--version <ver>] [--path <path>]")
+    use dasu("  new <Name>")
+    use dasu("  run [file] [--debug|--release|-d|-r] [-O <0|1|2|3|s|z>] [-- args]")
+    use dasu("  build [file] [--debug|--release|-d|-r] [-O <0|1|2|3|s|z>]")
+    use dasu("  check [file] [--all] [--strict] [--deny Wxxxx]")
+    use dasu("  profile [--json] [--history] [--compare]")
+    use dasu("  test [filter|--filter <text>]")
+    use dasu("  clean [--cache] [--bin] [--all|-A]")
+    use dasu("  info")
+}
+
+pub fn main: () {
+    set args = env_args()
+    set n = rt_vec_len(args)
+    if n <= 1 {
+        print_help()
+        return
+    }
+
+    set cmd = lists::get(args 1)
+
+    if cmd == "new" {
+        if n <= 2 {
+            use dasu("Usage: owl new <Name>")
+            return
+        }
+        cmd_new(lists::get(args 2))
+        return
+    }
+    set args_copy1 = args
+    if cmd == "run" {
+        cmd_run(args)
+        return
+    }
+    set args_copy2 = args_copy1
+    if cmd == "add" {
+        cmd_add(args_copy1)
+        return
+    }
+    set args_copy3 = args_copy2
+    if cmd == "build" {
+        cmd_build(args_copy2)
+        return
+    }
+    set args_copy4 = args_copy3
+    if cmd == "check" {
+        cmd_check(args_copy3)
+        return
+    }
+    set args_copy5 = args_copy4
+    if cmd == "profile" {
+        cmd_profile(args_copy4)
+        return
+    }
+    set args_copy6 = args_copy5
+    if cmd == "test" {
+        cmd_test(args_copy5)
+        return
+    }
+    if cmd == "clean" {
+        cmd_clean(args_copy6)
+        return
+    }
+    if cmd == "info" {
+        cmd_info()
+        return
+    }
+
+    print_help()
+}

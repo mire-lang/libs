@@ -1,0 +1,10 @@
+[project]
+name = "net"
+entry = "mod.mire"
+
+[exports]
+_pal    = "_pal.mire"
+http    = "http/mod.mire"
+connect = "connect/mod.mire"
+recv    = "recv/mod.mire"
+socket  = "socket/mod.mire"

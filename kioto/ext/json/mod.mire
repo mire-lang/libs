@@ -1,0 +1,43 @@
+module json
+
+pub fn get: (text :&str field :&str) :str {
+    set needle = "\"" + *field + "\""
+    set pos = strings::index_of(*text needle)
+    if pos < 0 { return "" }
+
+    set offset = pos + strings::len(needle)
+    set after = strings::substr(*text offset strings::len(*text)) :str mut
+    set colon = strings::index_of(after ":")
+    if colon < 0 { return "" }
+    set after = strings::substr(after colon + 1 strings::len(after))
+    set after = strings::trim(after)
+
+    if strings::startswith(after "\"") {
+        set inner = strings::substr(after 1 strings::len(after))
+        set qend = strings::index_of(inner "\"")
+        if qend < 0 { return after }
+        return strings::substr(after 1 qend + 1)
+    }
+
+    set endmark = strings::index_of(after ",") :i64 mut
+    if endmark < 0 { set endmark = strings::len(after) }
+    set result = strings::substr(after 0 endmark) :str mut
+    set result = strings::trim(result)
+    return result
+}
+
+pub fn get_number: (text :&str field :&str) :i64 {
+    set s = get(text field)
+    if s == "" { return 0 }
+    return strings::to_i64(s)
+}
+
+pub fn get_bool: (text :&str field :&str) :bool {
+    set s = get(text field)
+    return s == "true"
+}
+
+pub fn has: (text :&str field :&str) :bool {
+    set needle = "\"" + *field + "\""
+    return strings::contains(*text needle)
+}

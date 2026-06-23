@@ -1,0 +1,51 @@
+# net: TCP + HTTP/HTTPS client
+#
+# Submodules:
+#   net::http::{get, post}  — HTTP/HTTPS requests
+#   net::connect::timeout   — TCP connect with timeout
+#   net::recv::all          — receive up to 64 KiB
+#   net::socket::nonblock   — set socket non-blocking
+#
+# Usage:
+#   load kioto::net
+#   set body = net::http::get("https://httpbin.org/get")
+#   set res = net::http::post(url, body, "application/json")
+#   set fd = net::connect("localhost", 8080)
+module net
+load kioto::net::_pal
+load kioto::net::http
+load kioto::net::connect
+load kioto::net::recv
+load kioto::net::socket
+
+# TCP connect to host:port. Returns fd or -1 on error.
+pub fn connect: (host :&str, port :i64) :i64 {
+    return pal_net_connect(*host, port)
+}
+
+# Send raw data on a TCP socket.
+pub fn send: (fd :i64, data :&str) :bool {
+    set d = *data
+    pal_net_send(fd, d)
+    return true
+}
+
+# Receive up to max_bytes from a TCP socket.
+pub fn recv: (fd :i64, max_bytes :i64) :str {
+    return pal_net_recv(fd, max_bytes)
+}
+
+# Close a TCP socket.
+pub fn close: (fd :i64) {
+    pal_net_close(fd)
+}
+
+# Poll a socket for readability. Returns >0 if readable.
+pub fn poll: (fd :i64, timeout_ms :i64) :i64 {
+    return pal_net_poll(fd, timeout_ms)
+}
+
+# Resolve a hostname to an IPv4 address string.
+pub fn resolve: (host :&str) :str {
+    return pal_net_resolve(*host)
+}

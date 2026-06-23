@@ -37,3 +37,11 @@ pub fn pad_right: (s :&str, w :i64, pad :&str) :str { return rt_strings_pad_righ
 pub fn repeat: (s :&str, n :i64) :str { return rt_strings_repeat(s, n) }
 pub fn is_empty: (s :&str) :bool { return rt_strings_len(s) == 0 }
 pub fn index_of: (s :&str, sub :&str) :i64 { return rt_strings_index_of(s, sub) }
+
+extern fn rt_i64_to_string: (value :i64) :str lib "c"
+pub fn from_i64: (value :i64) :str {
+    return rt_i64_to_string(value)
+}
+
+extern fn rt_string_to_i64: (s :str) :i64 lib "c"
+pub fn to_i64: (s :&str) :i64 { return rt_string_to_i64(*s) }

@@ -6,3 +6,14 @@ extern fn pal_term_clear: () :str lib "c"
 pub fn style: (s :str, style :str) :str { return pal_term_style(s, style) }
 pub fn hr: (ch :str, len :i64) :str { return pal_term_hr(ch, len) }
 pub fn clear: () :str { return pal_term_clear() }
+
+pub fn bar: (name :str, elapsed_ms :i64, phase_ms :i64, total_ms :i64) :str {
+    set w = 25 :i64 mut
+    if total_ms == 0 { return "[" + strings.repeat("-" w) + "] " + name }
+    set frac = phase_ms * w / total_ms
+    set fill = frac :i64 mut
+    if fill > w { set fill = w }
+    if fill < 0 { set fill = 0 }
+    set rest = w - fill
+    return "[" + strings.repeat("=" fill) + strings.repeat("-" rest) + "] " + name + "  " + str(elapsed_ms) + "ms"
+}

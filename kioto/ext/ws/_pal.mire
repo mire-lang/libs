@@ -1,0 +1,11 @@
+module _pal
+
+extern fn pal_ws_connect: (host :str, port :i64, path :str) :i64 lib "c"
+extern fn pal_ws_send_text: (fd :i64, data :str) lib "c"
+extern fn pal_ws_recv: (fd :i64, max_bytes :i64) :str lib "c"
+extern fn pal_ws_close: (fd :i64) lib "c"
+
+extern fn pal_wss_connect: (host :str, port :i64, path :str) :i64 lib "c"
+extern fn pal_wss_send_text: (fd :i64, data :str) lib "c"
+extern fn pal_wss_recv: (fd :i64, max_bytes :i64) :str lib "c"
+extern fn pal_wss_close: (fd :i64) lib "c"

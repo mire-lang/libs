@@ -1,0 +1,6 @@
+module socket
+load kioto::net::_pal
+
+pub fn nonblock: (fd :i64, nonblock :i64) {
+    pal_net_set_nonblock(fd, nonblock)
+}

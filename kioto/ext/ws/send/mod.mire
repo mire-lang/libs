@@ -1,0 +1,7 @@
+module send
+load kioto::ws::_pal
+
+pub fn text: (fd :i64, message :&str) {
+    set m = *message
+    pal_ws_send_text(fd, m)
+}

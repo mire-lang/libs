@@ -1,0 +1,6 @@
+module recv
+load kioto::net::_pal
+
+pub fn all: (fd :i64) :str {
+    return pal_net_recv(fd, 65536 :i64)
+}

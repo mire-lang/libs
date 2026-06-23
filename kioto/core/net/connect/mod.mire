@@ -1,0 +1,6 @@
+module connect
+load kioto::net::_pal
+
+pub fn timeout: (host :&str, port :i64, timeout_ms :i64) :i64 {
+    return pal_net_connect_timeout(*host, port, timeout_ms)
+}

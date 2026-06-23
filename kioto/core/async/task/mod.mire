@@ -1,0 +1,10 @@
+module task
+load kioto::dicts
+
+pub fn done: (task :map[str str]) :bool {
+    return dicts::get(task "state") == "done"
+}
+
+pub fn error: (task :map[str str]) :bool {
+    return dicts::get(task "state") == "error"
+}

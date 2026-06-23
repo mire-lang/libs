@@ -27,5 +27,5 @@ pub fn unwrap: (r) {
         set r_val = r
         return dicts.get(r_val "value")
     }
-    return mu
+    proc.exit(1)
 }

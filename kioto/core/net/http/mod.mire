@@ -1,5 +1,6 @@
 module http
 load kioto::net::_pal
+load kioto::strings
 
 fn is_https: (url :str) :bool {
     return strings::startswith(url "https://")

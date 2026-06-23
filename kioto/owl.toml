@@ -1,6 +1,6 @@
 [project]
 name = "kioto"
-version = "3.11.10"
+version = "3.11.11"
 entry = "mod.mire"
 
 [exports]

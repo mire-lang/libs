@@ -5,6 +5,8 @@ extern fn pal_net_connect_timeout: (host :str, port :i64, timeout_ms :i64) :i64 
 extern fn pal_net_send: (fd :i64, data :str) lib "c"
 extern fn pal_net_recv: (fd :i64, max_bytes :i64) :str lib "c"
 extern fn pal_net_close: (fd :i64) lib "c"
+extern fn pal_net_bind: (port :i64) :i64 lib "c"
+extern fn pal_net_accept: (fd :i64) :i64 lib "c"
 extern fn pal_net_poll: (fd :i64, timeout_ms :i64) :i64 lib "c"
 extern fn pal_net_set_nonblock: (fd :i64, nonblock :i64) lib "c"
 extern fn pal_net_resolve: (host :str) :str lib "c"

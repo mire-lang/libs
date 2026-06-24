@@ -40,6 +40,16 @@ pub fn close: (fd :i64) {
     pal_net_close(fd)
 }
 
+# Bind and listen on a TCP port. Returns server fd or -1.
+pub fn bind: (port :i64) :i64 {
+    return pal_net_bind(port)
+}
+
+# Accept a client connection. Returns client fd or -1.
+pub fn accept: (fd :i64) :i64 {
+    return pal_net_accept(fd)
+}
+
 # Poll a socket for readability. Returns >0 if readable.
 pub fn poll: (fd :i64, timeout_ms :i64) :i64 {
     return pal_net_poll(fd, timeout_ms)

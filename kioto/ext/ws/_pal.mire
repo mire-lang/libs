@@ -9,3 +9,14 @@ extern fn pal_wss_connect: (host :str, port :i64, path :str) :i64 lib "c"
 extern fn pal_wss_send_text: (fd :i64, data :str) lib "c"
 extern fn pal_wss_recv: (fd :i64, max_bytes :i64) :str lib "c"
 extern fn pal_wss_close: (fd :i64) lib "c"
+
+# Server-side (unmasked) PAL functions — implemented in pal_ws_server.c
+extern fn pal_ws_server_accept: (fd :i64) :i64 lib "c"
+extern fn pal_ws_server_send_text: (fd :i64, data :str) lib "c"
+extern fn pal_ws_server_recv: (fd :i64, max_bytes :i64) :str lib "c"
+extern fn pal_ws_server_close: (fd :i64) lib "c"
+
+extern fn pal_wss_server_accept: (fd :i64) :i64 lib "c"
+extern fn pal_wss_server_send_text: (fd :i64, data :str) lib "c"
+extern fn pal_wss_server_recv: (fd :i64, max_bytes :i64) :str lib "c"
+extern fn pal_wss_server_close: (fd :i64) lib "c"

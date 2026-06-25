@@ -18,6 +18,7 @@ module ws
 load kioto::ws::_pal
 load kioto::ws::send
 load kioto::ws::recv
+load kioto::ws::server
 
 fn extract_ws_host: (url :str) :str {
     set u = url :str mut

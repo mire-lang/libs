@@ -1,0 +1,23 @@
+module server
+load kioto::ws::_pal
+
+pub fn accept: (fd :i64) :i64 {
+    return pal_ws_server_accept(fd)
+}
+
+pub fn send_text: (fd :i64, message :&str) {
+    set m = *message
+    pal_ws_server_send_text(fd, m)
+}
+
+pub fn recv: (fd :i64, max_bytes :i64) :str {
+    return pal_ws_server_recv(fd, max_bytes)
+}
+
+pub fn recv_all: (fd :i64) :str {
+    return pal_ws_server_recv(fd, 65536 :i64)
+}
+
+pub fn close: (fd :i64) {
+    pal_ws_server_close(fd)
+}

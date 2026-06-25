@@ -9,6 +9,7 @@ extern fn pal_env_chdir: (path :&str) lib "c"
 pub fn get: (key :&str) :str { return pal_env_get(*key) }
 pub fn set: (key :&str, value :&str) { pal_env_set(*key, *value) }
 pub fn all: () :map[str str] { return pal_env_all() }
-pub fn args: () :vec[str] { return rt_get_args() }
+# args requires argc/argv from the runtime — not yet plumbed through kioto
+# pub fn args: () :vec[str] { return rt_get_args() }
 pub fn cwd: () :str { return pal_env_cwd() }
 pub fn chdir: (path :&str) { pal_env_chdir(*path) }

@@ -1,0 +1,25 @@
+module event
+
+extern fn pal_net_poll: (fd :i64, timeout_ms :i64) :i64 lib "c"
+extern fn pal_net_bind: (port :i64) :i64 lib "c"
+extern fn pal_net_accept: (fd :i64) :i64 lib "c"
+
+# Bind to port, then block until a client connects. Returns client fd.
+pub fn accept_one: (port :i64) :i64 {
+    set fd = pal_net_bind(port)
+    if fd < 0 { return -1 }
+    while true {
+        set client = pal_net_accept(fd)
+        if client >= 0 { return client }
+    }
+}
+
+# Check if a socket has data ready to read. Returns 1 if readable.
+pub fn has_data: (fd :i64) :bool {
+    return pal_net_poll(fd 0) > 0
+}
+
+# Wait for data on a socket with timeout in ms. Returns 1 if ready.
+pub fn wait: (fd :i64, timeout_ms :i64) :bool {
+    return pal_net_poll(fd timeout_ms) > 0
+}

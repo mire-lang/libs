@@ -17,6 +17,7 @@ load kioto::net::http
 load kioto::net::connect
 load kioto::net::recv
 load kioto::net::socket
+load kioto::net::event
 
 # TCP connect to host:port. Returns fd or -1 on error.
 pub fn connect: (host :&str, port :i64) :i64 {

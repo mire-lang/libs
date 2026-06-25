@@ -1,0 +1,14 @@
+module cli
+load kioto::strings
+
+# Parse command-line arguments. Returns a map of named flags and positional args.
+# Flags: --name value, -n value
+# Positional: everything else, in order.
+#
+# Returns map: {"flags": map[str str], "args": vec[str]}
+
+extern fn rt_get_args: (argc :i32, argv :ptr) :vec[str] lib "c"
+
+pub fn parse: (raw :&vec[str]) :map[str str] {
+    return {"command": ""}
+}

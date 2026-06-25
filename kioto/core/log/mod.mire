@@ -1,0 +1,19 @@
+module log
+
+fn format_msg: (level :&str, msg :&str) :str {
+    set l = *level
+    set m = *msg
+    return "[" + l + "] " + m
+}
+
+pub fn info: (msg :&str) {
+    use dasu(format_msg("INFO" msg))
+}
+
+pub fn warn: (msg :&str) {
+    use dasu(format_msg("WARN" msg))
+}
+
+pub fn error: (msg :&str) {
+    use dasu(format_msg("ERROR" msg))
+}

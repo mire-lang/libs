@@ -18,5 +18,7 @@ load kioto::result
 load kioto::tuple
 load kioto::iter
 load kioto::net
+load kioto::log
+load kioto::cli
 load kioto::json
 load kioto::ws

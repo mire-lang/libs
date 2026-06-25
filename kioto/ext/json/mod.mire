@@ -1,43 +1,445 @@
 module json
 
-pub fn get: (text :&str field :&str) :str {
-    set needle = "\"" + *field + "\""
-    set pos = strings::index_of(*text needle)
-    if pos < 0 { return "" }
-
-    set offset = pos + strings::len(needle)
-    set after = strings::substr(*text offset strings::len(*text)) :str mut
-    set colon = strings::index_of(after ":")
-    if colon < 0 { return "" }
-    set after = strings::substr(after colon + 1 strings::len(after))
-    set after = strings::trim(after)
-
-    if strings::startswith(after "\"") {
-        set inner = strings::substr(after 1 strings::len(after))
-        set qend = strings::index_of(inner "\"")
-        if qend < 0 { return after }
-        return strings::substr(after 1 qend + 1)
+fn _skip_ws: (s :&str, pos :i64, n :i64) :i64 {
+    set p = pos :i64 mut
+    while p < n {
+        set c = strings::substr(s p 1)
+        if c != " " && c != "\t" && c != "\n" && c != "\r" { return p }
+        set p = p + 1
     }
+    return p
+}
 
-    set endmark = strings::index_of(after ",") :i64 mut
-    if endmark < 0 { set endmark = strings::len(after) }
-    set result = strings::substr(after 0 endmark) :str mut
-    set result = strings::trim(result)
+fn _find_matching_close: (s :&str, open_pos :i64) :i64 {
+    set n = strings::len(s)
+    set c0 = strings::substr(s open_pos 1)
+    set close = "" :str mut
+    if c0 == "{" { set close = "}" }
+    if c0 == "[" { set close = "]" }
+    if close == "" { return n }
+    set depth = 0 :i64 mut
+    set in_string = false :bool mut
+    set i = open_pos :i64 mut
+    while i < n {
+        set c = strings::substr(s i 1)
+        if in_string {
+            if c == "\\" { set i = i + 1 }
+            if c == "\"" { set in_string = false }
+        } else {
+            if c == "\"" { set in_string = true }
+            if c == c0 { set depth = depth + 1 }
+            if c == close {
+                set depth = depth - 1
+                if depth == 0 { return i }
+            }
+        }
+        set i = i + 1
+    }
+    return n
+}
+
+fn _extract_string_val: (s :&str, pos :i64) :str {
+    set n = strings::len(s)
+    set i = pos + 1 :i64 mut
+    while i < n {
+        set c = strings::substr(s i 1)
+        if c == "\\" { set i = i + 2 } else {
+            if c == "\"" { return strings::substr(s pos i - pos + 1) } else { set i = i + 1 }
+        }
+    }
+    return ""
+}
+
+fn _extract_token: (s :&str, pos :i64) :str {
+    set n = strings::len(s)
+    set i = pos :i64 mut
+    while i < n {
+        set ch = strings::substr(s i 1)
+        if ch == "," || ch == "}" || ch == "]" || ch == " " || ch == "\t" || ch == "\n" || ch == "\r" {
+            return strings::substr(s pos i - pos)
+        }
+        set i = i + 1
+    }
+    return strings::substr(s pos n - pos)
+}
+
+fn _extract_value_raw: (s :&str, pos :i64) :str {
+    set n = strings::len(s)
+    set p = _skip_ws(s pos n)
+    if p >= n { return "" }
+    set ch = strings::substr(s p 1)
+    if ch == "{" {
+        set end = _find_matching_close(s p)
+        return strings::substr(s p end - p + 1)
+    }
+    if ch == "[" {
+        set end = _find_matching_close(s p)
+        return strings::substr(s p end - p + 1)
+    }
+    if ch == "\"" { return _extract_string_val(s p) }
+    return _extract_token(s p)
+}
+
+fn _value_start: (s :&str, pos :i64) :i64 {
+    set n = strings::len(s)
+    return _skip_ws(s pos n)
+}
+
+fn _strip_quotes: (val :&str) :str {
+    set v = *val
+    set vn = strings::len(v)
+    if vn >= 2 {
+        set first = strings::substr(v 0 1)
+        set last = strings::substr(v vn - 1 1)
+        if first == "\"" && last == "\"" {
+            return _unescape_content(strings::substr(v 1 vn - 2))
+        }
+    }
+    return v
+}
+
+fn _find_key_value_pos: (s :&str, obj_start :i64, key :&str) :i64 {
+    set k = *key
+    set obj_end = _find_matching_close(s obj_start)
+    set search = "\"" + k + "\""
+    set scan_start = obj_start + 1 :i64 mut
+    set n = obj_end
+    while scan_start < n {
+        set slice = strings::substr(s scan_start n - scan_start)
+        set found = strings::index_of(slice search)
+        if found < 0 { return -1 :i64 }
+        set abs_found = scan_start + found
+        set after_key = abs_found + strings::len(search)
+        set colon_pos = _skip_ws(s after_key n)
+        if colon_pos < n && strings::substr(s colon_pos 1) == ":" {
+            return colon_pos + 1
+        }
+        set scan_start = abs_found + 1
+    }
+    return -1 :i64
+}
+
+fn _nth_in_array: (s :&str, arr_start :i64, n_idx :i64) :i64 {
+    set arr_end = _find_matching_close(s arr_start)
+    set n = arr_end
+    set pos = arr_start + 1 :i64 mut
+    set cnt = 0 :i64 mut
+    set ins = false :bool mut
+    set da = 0 :i64 mut
+    set dob = 0 :i64 mut
+    while pos < n {
+        set c = strings::substr(s pos 1)
+        if ins {
+            if c == "\\" { set pos = pos + 1 }
+            if c == "\"" { set ins = false }
+        } else {
+            if c == "\"" { set ins = true }
+            if c == "[" { set da = da + 1 }
+            if c == "]" { set da = da - 1 }
+            if c == "{" { set dob = dob + 1 }
+            if c == "}" { set dob = dob - 1 }
+            if c == "," && da == 0 && dob == 0 { set cnt = cnt + 1 }
+        }
+        if cnt == n_idx {
+            if c == "," { set pos = _skip_ws(s pos + 1 n) }
+            return _skip_ws(s pos n)
+        }
+        set pos = pos + 1
+    }
+    if n_idx == 0 {
+        set pos = _skip_ws(s arr_start + 1 n)
+        if pos < n { return pos }
+    }
+    return -1 :i64
+}
+
+fn _nav_step: (s :&str, pos :i64, seg :str) :i64 {
+    set val = _extract_value_raw(s pos)
+    set c = strings::substr(val 0 1)
+    if c == "{" { return _find_key_value_pos(s pos seg) }
+    if c == "[" {
+        set idx = strings::to_i64(seg)
+        return _nth_in_array(s pos idx)
+    }
+    return -1 :i64
+}
+
+fn _escape_content: (input :&str) :str {
+    set n = strings::len(input)
+    if n == 0 { return "" }
+    set result = "" :str mut
+    set i = 0 :i64 mut
+    while i < n {
+        set c = strings::substr(input i 1)
+        if c == "\"" {
+            set result = result + "\\\""
+        } else {
+            if c == "\\" {
+                set result = result + "\\\\"
+            } else {
+                if c == "\n" {
+                    set result = result + "\\n"
+                } else {
+                    if c == "\r" {
+                        set result = result + "\\r"
+                    } else {
+                        if c == "\t" {
+                            set result = result + "\\t"
+                        } else {
+                            set result = result + c
+                        }
+                    }
+                }
+            }
+        }
+        set i = i + 1
+    }
     return result
 }
 
-pub fn get_number: (text :&str field :&str) :i64 {
-    set s = get(text field)
-    if s == "" { return 0 }
-    return strings::to_i64(s)
+fn _unescape_content: (input :&str) :str {
+    set n = strings::len(input)
+    if n == 0 { return "" }
+    set result = "" :str mut
+    set i = 0 :i64 mut
+    while i < n {
+        set c = strings::substr(input i 1)
+        if c == "\\" && i + 1 < n {
+            set npos = i + 1
+            set nxt = strings::substr(input npos 1)
+            if nxt == "\"" {
+                set result = result + "\""
+            } else {
+                if nxt == "\\" {
+                    set result = result + "\\"
+                } else {
+                    if nxt == "n" {
+                        set result = result + "\n"
+                    } else {
+                        if nxt == "r" {
+                            set result = result + "\r"
+                        } else {
+                            if nxt == "t" {
+                                set result = result + "\t"
+                            } else {
+                                if nxt == "/" {
+                                    set result = result + "/"
+                                } else {
+                                    set result = result + "\\" + nxt
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            set i = i + 2
+        } else {
+            set result = result + c
+            set i = i + 1
+        }
+    }
+    return result
 }
 
-pub fn get_bool: (text :&str field :&str) :bool {
-    set s = get(text field)
-    return s == "true"
+pub fn is_valid: (input :&str) :bool {
+    set s = *input
+    set n = strings::len(s)
+    set pos = _skip_ws(s 0 n)
+    if pos >= n { return false }
+    set c = strings::substr(s pos 1)
+    if c == "{" {
+        set end = _find_matching_close(s pos)
+        if end >= n { return false }
+        set after = _skip_ws(s end + 1 n)
+        return after >= n
+    }
+    if c == "[" {
+        set end = _find_matching_close(s pos)
+        if end >= n { return false }
+        set after = _skip_ws(s end + 1 n)
+        return after >= n
+    }
+    if c == "\"" {
+        set val = _extract_string_val(s pos)
+        set end = pos + strings::len(val)
+        set after = _skip_ws(s end n)
+        return after >= n
+    }
+    if c == "t" { return strings::substr(s pos 4) == "true" }
+    if c == "f" { return strings::substr(s pos 5) == "false" }
+    if c == "n" { return strings::substr(s pos 4) == "null" }
+    if strings::contains("0123456789-" c) {
+        set tok = _extract_token(s pos)
+        return strings::len(tok) > 0
+    }
+    return false
+}
+pub fn get: (input :&str, path :&str) :str {
+    set s = *input
+    set p = *path
+    if p == "" {
+        set root_val = _extract_value_raw(s 0)
+        return _strip_quotes(root_val)
+    }
+    set segments = strings::split(p ".")
+    set seg_count = rt_vec_len(segments)
+    set pos = 0 :i64 mut
+    set si = 0 :i64 mut
+    while si < seg_count {
+        set seg = rt_vec_get_str(segments si)
+        set new_pos = _nav_step(s pos seg)
+        if new_pos < 0 { return "" }
+        set pos = new_pos
+        set si = si + 1
+    }
+    set final_val = _extract_value_raw(s pos)
+    return _strip_quotes(final_val)
+}
+pub fn exists: (input :&str, path :&str) :bool {
+    set s = *input
+    set p = *path
+    if p == "" { return s != "" }
+    set segments = strings::split(p ".")
+    set seg_count = rt_vec_len(segments)
+    set pos = 0 :i64 mut
+    set si = 0 :i64 mut
+    while si < seg_count {
+        set seg = rt_vec_get_str(segments si)
+        set new_pos = _nav_step(s pos seg)
+        if new_pos < 0 { return false }
+        set pos = new_pos
+        set si = si + 1
+    }
+    return true
 }
 
-pub fn has: (text :&str field :&str) :bool {
-    set needle = "\"" + *field + "\""
-    return strings::contains(*text needle)
+pub fn type_of: (input :&str, path :&str) :str {
+    set s = *input
+    set p = *path
+    if p == "" {
+        set v = _extract_value_raw(s 0)
+        set ch = strings::substr(v 0 1)
+        if ch == "{" { return "object" }
+        if ch == "[" { return "array" }
+        if ch == "\"" { return "string" }
+        if ch == "t" || ch == "f" { return "bool" }
+        if ch == "n" { return "null" }
+        return "number"
+    }
+    set segments = strings::split(p ".")
+    set seg_count = rt_vec_len(segments)
+    set pos = 0 :i64 mut
+    set si = 0 :i64 mut
+    while si < seg_count {
+        set seg = rt_vec_get_str(segments si)
+        set new_pos = _nav_step(s pos seg)
+        if new_pos < 0 { return "" }
+        set pos = new_pos
+        set si = si + 1
+    }
+    set v_final = _extract_value_raw(s pos)
+    set ch_final = strings::substr(v_final 0 1)
+    if ch_final == "{" { return "object" }
+    if ch_final == "[" { return "array" }
+    if ch_final == "\"" { return "string" }
+    if ch_final == "t" || ch_final == "f" { return "bool" }
+    if ch_final == "n" { return "null" }
+    return "number"
 }
+
+pub fn keys: (input :&str, path :&str) :str {
+    set s = *input
+    set p = *path
+    set pos = 0 :i64 mut
+    if p != "" {
+        set segments = strings::split(p ".")
+        set seg_count = rt_vec_len(segments)
+        set si = 0 :i64 mut
+        while si < seg_count {
+            set seg = rt_vec_get_str(segments si)
+            set new_pos = _nav_step(s pos seg)
+            if new_pos < 0 { return "" }
+            set pos = new_pos
+            set si = si + 1
+        }
+    }
+    set obj_start = _value_start(s pos)
+    if strings::substr(s obj_start 1) != "{" { return "" }
+    set obj_end = _find_matching_close(s obj_start)
+    set result = "" :str mut
+    set i = obj_start + 1 :i64 mut
+    while i < obj_end {
+        set ch = strings::substr(s i 1)
+        if ch == "\"" {
+            set key_val = _extract_string_val(s i)
+            set key_end = i + strings::len(key_val) - 1
+            set after = _skip_ws(s key_end + 1 obj_end)
+            if after < obj_end && strings::substr(s after 1) == ":" {
+                set kname = strings::substr(key_val 1 strings::len(key_val) - 2)
+                if result == "" { set result = kname } else { set result = result + "\n" + kname }
+            }
+            set i = key_end
+        }
+        if ch == "[" {
+            set bracket_end = _find_matching_close(s i)
+            if bracket_end > i { set i = bracket_end }
+        }
+        if ch == "{" {
+            set brace_end = _find_matching_close(s i)
+            if brace_end > i { set i = brace_end }
+        }
+        set i = i + 1
+    }
+    return result
+}
+
+pub fn len: (input :&str, path :&str) :i64 {
+    set s = *input
+    set p = *path
+    set pos = 0 :i64 mut
+    if p != "" {
+        set segments = strings::split(p ".")
+        set seg_count = rt_vec_len(segments)
+        set si = 0 :i64 mut
+        while si < seg_count {
+            set seg = rt_vec_get_str(segments si)
+            set new_pos = _nav_step(s pos seg)
+            if new_pos < 0 { return -1 :i64 }
+            set pos = new_pos
+            set si = si + 1
+        }
+    }
+    set val_start = _value_start(s pos)
+    set ch = strings::substr(s val_start 1)
+    if ch == "[" {
+        set arr_end = _find_matching_close(s val_start)
+        if arr_end <= val_start { return 0 :i64 }
+        set count = 1 :i64 mut
+        set i = val_start + 1 :i64 mut
+        set ins = false :bool mut
+        set da = 0 :i64 mut
+        set dob = 0 :i64 mut
+        while i < arr_end {
+            set ci = strings::substr(s i 1)
+            if ins {
+                if ci == "\\" { set i = i + 1 }
+                if ci == "\"" { set ins = false }
+            } else {
+                if ci == "\"" { set ins = true }
+                if ci == "[" { set da = da + 1 }
+                if ci == "]" { set da = da - 1 }
+                if ci == "{" { set dob = dob + 1 }
+                if ci == "}" { set dob = dob - 1 }
+                if ci == "," && da == 0 && dob == 0 { set count = count + 1 }
+            }
+            set i = i + 1
+        }
+        return count
+    }
+    if ch == "{" { return 0 :i64 }
+    return -1 :i64
+}
+
+pub fn quoted: (input :&str) :str { return "\"" + _escape_content(input) + "\"" }
+pub fn escape: (input :&str) :str { return _escape_content(input) }
+pub fn unescape: (input :&str) :str { return _unescape_content(input) }

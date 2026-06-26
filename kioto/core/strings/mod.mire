@@ -29,8 +29,29 @@ pub fn startswith: (s :&str, prefix :&str) :bool { return rt_strings_starts_with
 pub fn endswith: (s :&str, suffix :&str) :bool { return rt_strings_ends_with(s, suffix) }
 pub fn len: (s :&str) :i64 { return rt_strings_len(s) }
 pub fn trim: (s :&str) :str { return rt_strings_trim(s) }
-pub fn ltrim: (s :&str) :str { return rt_strings_trim(s) }
-pub fn rtrim: (s :&str) :str { return rt_strings_trim(s) }
+pub fn ltrim: (s :&str) :str {
+    set v = *s
+    set n = strings::len(v)
+    set i = 0 :i64 mut
+    while i < n {
+        set c = strings::substr(v i 1)
+        if c != " " && c != "\t" && c != "\n" && c != "\r" { return strings::substr(v i n - i) }
+        set i = i + 1
+    }
+    return ""
+}
+pub fn rtrim: (s :&str) :str {
+    set v = *s
+    set n = strings::len(v)
+    if n == 0 { return "" }
+    set i = n - 1 :i64 mut
+    while i >= 0 {
+        set c = strings::substr(v i 1)
+        if c != " " && c != "\t" && c != "\n" && c != "\r" { return strings::substr(v 0 i + 1) }
+        set i = i - 1
+    }
+    return ""
+}
 pub fn substr: (s :&str, start :i64, len :i64) :str { return rt_strings_substr(s, start, len) }
 pub fn pad_left: (s :&str, w :i64, pad :&str) :str { return rt_strings_pad_left(s, w, pad) }
 pub fn pad_right: (s :&str, w :i64, pad :&str) :str { return rt_strings_pad_right(s, w, pad) }

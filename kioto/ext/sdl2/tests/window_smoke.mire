@@ -1,0 +1,24 @@
+load kioto
+
+pub fn main: () {
+    use dasu("SDL2 Window Test via kioto::sdl2")
+    use dasu("====================================")
+
+    if !sdl2::init_video() {
+        use dasu("FAIL: SDL2 init: " + sdl2::get_error())
+        return
+    }
+    use dasu("SDL2 initialized (VIDEO)")
+
+    set win = sdl2::create_window("Mire SDL2 via kioto" 640 480)
+    if win == 0 {
+        use dasu("FAIL: create_window")
+        sdl2::quit()
+        return
+    }
+    use dasu("Window created (640x480), closing in 3s...")
+    sdl2::delay(3000)
+    sdl2::destroy_window(win)
+    sdl2::quit()
+    use dasu("PASS: SDL2 window test via kioto")
+}

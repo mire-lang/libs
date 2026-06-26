@@ -32,4 +32,3 @@ pub fn join: (a :&str, b :&str) :str { return pal_fs_join(*a, *b) }
 pub fn dir: (path :&str) :str { return pal_fs_dir(*path) }
 pub fn name: (path :&str) :str { return pal_fs_name(*path) }
 pub fn ext: (path :&str) :str { return pal_fs_ext(*path) }
-pub fn walk: (path :&str) :vec[str] { return pal_fs_list(*path) }

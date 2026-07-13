@@ -1,0 +1,31 @@
+# Registry index — mire-registry
+# Each entry describes a published package version.
+# Fields tarball, sha256, signature, author-key are populated
+# when official releases are published to GitHub.
+
+[[packages]]
+name        = "kioto"
+version     = "2.3.0"
+description = "Standard library for Mire — core types, collections, I/O, networking, and more"
+author      = "evelyn"
+compiler    = ">=0.15.0"
+abi         = 1
+language    = ">=0.15.0"
+
+[[packages]]
+name        = "owl"
+version     = "0.26.0"
+description = "Package and project manager for the Mire (Avenys) language"
+author      = "evelyn"
+compiler    = ">=0.15.0"
+abi         = 1
+language    = ">=0.15.0"
+
+[[packages]]
+name        = "sdl"
+version     = "1.0.0"
+description = "SDL bindings for Mire — SDL2 and SDL3, split by functional area (events, render, video, audio, clipboard, timer)"
+author      = "evelyn"
+compiler    = ">=0.15.0"
+abi         = 1
+language    = ">=0.15.0"

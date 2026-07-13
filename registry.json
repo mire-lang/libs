@@ -1,0 +1,11 @@
+{
+  "name": "mire-registry",
+  "protocol": 1,
+  "serial": 58,
+  "generated": "2026-07-13T00:00:00Z",
+  "expires": "2026-08-13T00:00:00Z",
+  "public-key": "",
+  "trust-policy": 1,
+  "mirrors": [],
+  "packages": 3
+}

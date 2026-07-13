@@ -1,10 +1,38 @@
 [project]
 name = "owl"
-version = "0.13.1"
+version = "0.26.0"
+description = "Package and project manager for the Mire (Avenys) language"
 entry = "code/main.mire"
 
-[dependencies]
-kioto = "latest"
+[build]
+compiler = "mire"
+profile = "debug"
+opt-level = "0"
 
-[exports]
-owl = "code/main"
+[paths]
+sources = "code"
+tests = "tests"
+output = "bin"
+cache = "bin/.cache"
+
+[dependencies]
+kioto = { path = "../kioto" }
+testlib = { path = "./tests/lib" }
+util = { path = "./code/util" }
+crypto = { path = "./code/crypto" }
+trust = { path = "./code/trust" }
+registry = { path = "./code/registry" }
+build = { path = "./code/build" }
+check = { path = "./code/check" }
+info = { path = "./code/info" }
+ui = { path = "./code/ui" }
+deps = { path = "./code/deps" }
+args = { path = "./code/args" }
+lockfile = { path = "./code/lockfile" }
+install = { path = "./code/install" }
+dload = { path = "./code/load" }
+semver = { path = "./code/semver" }
+gc = { path = "./code/gc" }
+tree = { path = "./code/tree" }
+profile = { path = "./code/profile" }
+export = { path = "./code/export" }

@@ -1,7 +1,12 @@
 [project]
 name = "kioto"
-version = "3.11.12"
-entry = "mod.mire"
+version = "2.3.0"
+description = "Standard library for Mire — core types, collections, I/O, networking, and more"
+entry = "code/mod.mire"
+
+[paths]
+sources = "code"
+tests = "tests"
 
 [exports]
 strings = "core/strings"
@@ -27,4 +32,4 @@ log     = "core/log"
 cli     = "core/cli"
 json    = "ext/json"
 ws      = "ext/ws"
-sdl2    = "ext/sdl2"
+crypto  = "core/crypto"

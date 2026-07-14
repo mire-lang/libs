@@ -6,7 +6,7 @@
   "expires": "2026-08-14T00:00:00Z",
   "public-key": "MCowBQYDK2VwAyEAWTxvSs7OimzkCX8zprT8KFDshFA71E5HXuGLn5WZCbI=",
   "trust-policy": 1,
-  "url": "https://raw.githubusercontent.com/mire-lang/libs/main",
+  "url": "https://raw.githubusercontent.com/mire-lang/libs/refs/heads/main",
   "mirrors": [],
   "packages": 3
 }

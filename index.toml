@@ -11,15 +11,8 @@ author      = "evelyn"
 compiler    = ">=0.15.0"
 abi         = 1
 language    = ">=0.15.0"
-
-[[packages]]
-name        = "owl"
-version     = "0.26.0"
-description = "Package and project manager for the Mire (Avenys) language"
-author      = "evelyn"
-compiler    = ">=0.15.0"
-abi         = 1
-language    = ">=0.15.0"
+tarball     = "kioto-2.3.0.tar.gz"
+sha256      = "b4c8915dbcfde49e91ba07428f98e519ed7fb935d312609d154f7dcfb4eba33a"
 
 [[packages]]
 name        = "sdl"
@@ -29,3 +22,5 @@ author      = "evelyn"
 compiler    = ">=0.15.0"
 abi         = 1
 language    = ">=0.15.0"
+tarball     = "sdl-1.0.0.tar.gz"
+sha256      = "65c8384ff166787c67142561e19feae25f8f7ccc5b7a1b3fb91831a9af2f0db2"

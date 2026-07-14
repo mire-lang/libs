@@ -1,26 +1,24 @@
 # Registry index — mire-registry
 # Each entry describes a published package version.
-# Fields tarball, sha256, signature, author-key are populated
-# when official releases are published to GitHub.
 
 [[packages]]
-name        = "kioto"
-version     = "2.3.0"
+name = "kioto"
+version = "2.3.0"
 description = "Standard library for Mire — core types, collections, I/O, networking, and more"
-author      = "evelyn"
-compiler    = ">=0.15.0"
-abi         = 1
-language    = ">=0.15.0"
-tarball     = "packages/kioto-2.3.0.tar.gz"
-sha256      = "b4c8915dbcfde49e91ba07428f98e519ed7fb935d312609d154f7dcfb4eba33a"
+author = "evelyn"
+compiler = ">=0.15.0"
+abi = 1
+language = ">=0.15.0"
+tarball = "packages/kioto-2.3.0.tar.gz"
+sha256 = "b4c8915dbcfde49e91ba07428f98e519ed7fb935d312609d154f7dcfb4eba33a"
 
 [[packages]]
-name        = "sdl"
-version     = "1.0.0"
+name = "sdl"
+version = "1.0.0"
 description = "SDL bindings for Mire — SDL2 and SDL3, split by functional area (events, render, video, audio, clipboard, timer)"
-author      = "evelyn"
-compiler    = ">=0.15.0"
-abi         = 1
-language    = ">=0.15.0"
-tarball     = "packages/sdl-1.0.0.tar.gz"
-sha256      = "65c8384ff166787c67142561e19feae25f8f7ccc5b7a1b3fb91831a9af2f0db2"
+author = "evelyn"
+compiler = ">=0.15.0"
+abi = 1
+language = ">=0.15.0"
+tarball = "packages/sdl-1.0.0.tar.gz"
+sha256 = "65c8384ff166787c67142561e19feae25f8f7ccc5b7a1b3fb91831a9af2f0db2"

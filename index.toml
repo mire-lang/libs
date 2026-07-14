@@ -10,7 +10,7 @@ compiler = ">=0.15.0"
 abi = 1
 language = ">=0.15.0"
 tarball = "packages/kioto-2.3.0.tar.gz"
-sha256 = "b4c8915dbcfde49e91ba07428f98e519ed7fb935d312609d154f7dcfb4eba33a"
+sha256 = "c11193b51cf1241e86a2f4496fe714c5807f68d793d8bee51188f76e59346cf8"
 
 [[packages]]
 name = "sdl"
@@ -21,4 +21,4 @@ compiler = ">=0.15.0"
 abi = 1
 language = ">=0.15.0"
 tarball = "packages/sdl-1.0.0.tar.gz"
-sha256 = "65c8384ff166787c67142561e19feae25f8f7ccc5b7a1b3fb91831a9af2f0db2"
+sha256 = "84ee9f964d05bf4b97be1189d9bc22866e50ccd1a9cb1e439714aa36d97dac79"

@@ -9,7 +9,7 @@ author = "evelyn"
 compiler = ">=0.15.0"
 abi = 1
 language = ">=0.15.0"
-tarball = "packages/kioto-2.3.0.tar.gz"
+tarball = "kioto-2.3.0.tar.gz"
 sha256 = "c11193b51cf1241e86a2f4496fe714c5807f68d793d8bee51188f76e59346cf8"
 
 [[packages]]
@@ -20,5 +20,5 @@ author = "evelyn"
 compiler = ">=0.15.0"
 abi = 1
 language = ">=0.15.0"
-tarball = "packages/sdl-1.0.0.tar.gz"
+tarball = "sdl-1.0.0.tar.gz"
 sha256 = "84ee9f964d05bf4b97be1189d9bc22866e50ccd1a9cb1e439714aa36d97dac79"

@@ -1,6 +1,0 @@
-[project]
-name = "async"
-entry = "mod.mire"
-
-[exports]
-task = "task/mod.mire"

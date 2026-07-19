@@ -1,8 +1,0 @@
-module cli
-load kioto::strings
-
-extern fn rt_get_args: (argc :i32, argv :ptr) :vec[str] lib "c"
-
-pub fn parse: (raw :&vec[str]) :map[str str] {
-    return {"command": ""}
-}

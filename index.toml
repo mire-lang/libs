@@ -1,28 +1,75 @@
 # Registry index — mire-registry
 # Each entry describes a published package version.
-# `tarball` is resolved against registry.json's `url` (GitHub release assets).
-# `repo` points to the source repository.
+# Two install methods are supported:
+#   method = "clone"   → owl git-clones the repo into ~/.owl/libs/<name>
+#                        (ref pins a branch/tag; commit pins an exact SHA)
+#   method = "release" → owl downloads the release asset from GitHub and
+#                        verifies its SHA-256 before extracting
+# `repo` may be a full URL or a "owner/name" GitHub shorthand.
 
 [[packages]]
-name = "kioto"
-version = "2.3.2"
-description = "Standard library for Mire — core types, collections, I/O, networking, and more"
-author = "evelyn"
+name = "mire"
+version = "0.0.7"
+description = "Core library for the Mire language — vec, map, str, maybe, result, arr, std macros"
+author = "mire-lang"
 compiler = ">=0.15.0"
 abi = 1
 language = ">=0.15.0"
-tarball = "kioto-2.3.2.tar.zst"
-sha256 = "3a0e925c0c66c0c89d15eff04fa2eef18711dfb58098ef82b1fb537332fbf05d"
-repo = "https://github.com/mire-lang/Kioto"
+method = "clone"
+repo = "mire-lang/mire-lib"
+ref = "main"
+commit = "a60f60eed388f9fb3245b3066a264fa3886f42df"
+
+[[packages]]
+name = "kioto"
+version = "2.4.7"
+description = "Standard library for Mire — core types, collections, I/O, networking, crypto, and more"
+author = "mire-lang"
+compiler = ">=0.15.0"
+abi = 1
+language = ">=0.15.0"
+method = "release"
+repo = "mire-lang/Kioto"
+tag = "v2.4.7"
+asset = "kioto-2.4.7.tar.zst"
+sha256 = "5e7cc4fb392f8eb0d858549b99d0873738e4289855fa4e5b1b2f9ae91a67b0a3"
 
 [[packages]]
 name = "sdl"
 version = "1.0.1"
 description = "SDL bindings for Mire — SDL2 and SDL3, split by functional area (events, render, video, audio, clipboard, timer)"
-author = "evelyn"
+author = "mire-lang"
 compiler = ">=0.15.0"
 abi = 1
 language = ">=0.15.0"
-tarball = "sdl-1.0.1.tar.zst"
-sha256 = "660363ba2617980688a64e771499c7e0af915fddb0431408e448705c13d62c58"
-repo = "https://github.com/mire-lang/SDL"
+method = "release"
+repo = "mire-lang/SDL"
+tag = "v1.0.1"
+asset = "sdl-1.0.1.tar.zst"
+sha256 = "598747b8108dbd428df98ccccf3dc1773a1b9de240940715815908bdd3fa7a62"
+
+[[packages]]
+name = "avenys"
+version = "3.24.27"
+description = "Mire compiler (Avenys) — compiler binary and runtime/PAL sources"
+author = "mire-lang"
+compiler = ">=0.15.0"
+abi = 1
+language = ">=0.15.0"
+method = "clone"
+repo = "mire-lang/Avenys-rust"
+ref = "v3.24.27"
+commit = "c5c662e947050011bc35ea24df98a155e36eeb7c"
+
+[[packages]]
+name = "owl"
+version = "0.31.0"
+description = "Package and project manager for the Mire (Avenys) language"
+author = "mire-lang"
+compiler = ">=0.15.0"
+abi = 1
+language = ">=0.15.0"
+method = "clone"
+repo = "mire-lang/owl"
+ref = "v0.31.0"
+commit = "40d7287fed266cb54cabad00de20f77530ec8e2e"

@@ -1,0 +1,12 @@
+{
+  "name": "mire-registry",
+  "protocol": 1,
+  "serial": 61,
+  "generated": "2026-09-22T00:00:00Z",
+  "expires": "2026-10-22T00:00:00Z",
+  "public-key": "MCowBQYDK2VwAyEAkj/5fcvMSJssa/50dCFzjctZQNj7qh0FrlG5zRW8Omc=",
+  "trust-policy": 1,
+  "url": "https://github.com/mire-lang/reg/releases/download/packages-v2",
+  "mirrors": [],
+  "packages": 7
+}

@@ -1,0 +1,22 @@
+# MOR (Mire Official Registry) configuration
+
+[registry]
+name = "MOR"
+description = "Official Mire package registry"
+url = "https://github.com/mire-lang/reg"
+url-raw = "https://raw.githubusercontent.com/mire-lang/reg/master/mor"
+
+[cfg]
+publisher = "publish.toml"
+registry = "local"
+cache = "~/.owl/cache"
+libs = "~/.owl/libs"
+
+[exports]
+# Internal module exports for registry operations
+
+[dependencies]
+# Registry dependencies (none)
+
+["owl@lock"]
+version = "3"

@@ -9,7 +9,7 @@
 
 [[packages]]
 name = "mire"
-version = "0.0.7"
+version = "1.0.0"
 description = "Core library for the Mire language — vec, map, str, maybe, result, arr, std macros"
 author = "mire-lang"
 compiler = ">=0.15.0"
@@ -18,11 +18,11 @@ language = ">=0.15.0"
 method = "clone"
 repo = "mire-lang/mire-lib"
 ref = "main"
-commit = "a60f60eed388f9fb3245b3066a264fa3886f42df"
+commit = "b5a23b4"
 
 [[packages]]
 name = "kioto"
-version = "2.4.7"
+version = "2.5.0"
 description = "Standard library for Mire — core types, collections, I/O, networking, crypto, and more"
 author = "mire-lang"
 compiler = ">=0.15.0"
@@ -30,13 +30,13 @@ abi = 1
 language = ">=0.15.0"
 method = "release"
 repo = "mire-lang/Kioto"
-tag = "v2.4.7"
-asset = "kioto-2.4.7.tar.zst"
-sha256 = "5e7cc4fb392f8eb0d858549b99d0873738e4289855fa4e5b1b2f9ae91a67b0a3"
+tag = "v2.5.0"
+asset = "kioto-2.5.0.tar.zst"
+sha256 = "TBD"
 
 [[packages]]
 name = "sdl"
-version = "1.0.1"
+version = "1.3.1"
 description = "SDL bindings for Mire — SDL2 and SDL3, split by functional area (events, render, video, audio, clipboard, timer)"
 author = "mire-lang"
 compiler = ">=0.15.0"
@@ -44,13 +44,41 @@ abi = 1
 language = ">=0.15.0"
 method = "release"
 repo = "mire-lang/SDL"
-tag = "v1.0.1"
-asset = "sdl-1.0.1.tar.zst"
-sha256 = "598747b8108dbd428df98ccccf3dc1773a1b9de240940715815908bdd3fa7a62"
+tag = "v1.3.1"
+asset = "sdl-1.3.1.tar.zst"
+sha256 = "TBD"
+
+[[packages]]
+name = "sqlite"
+version = "0.1.0"
+description = "SQLite bindings for Mire (direct FFI)"
+author = "mire-lang"
+compiler = ">=0.15.0"
+abi = 1
+language = ">=0.15.0"
+method = "release"
+repo = "mire-lang/sqlite"
+tag = "v0.1.0"
+asset = "sqlite-0.1.0.tar.zst"
+sha256 = "TBD"
+
+[[packages]]
+name = "wasm"
+version = "0.1.0"
+description = "WASI host primitives for Mire (host, fetch, storage, canvas, memory)"
+author = "mire-lang"
+compiler = ">=0.15.0"
+abi = 1
+language = ">=0.15.0"
+method = "release"
+repo = "mire-lang/wasm-lib"
+tag = "v0.1.0"
+asset = "wasm-0.1.0.tar.zst"
+sha256 = "TBD"
 
 [[packages]]
 name = "avenys"
-version = "3.24.27"
+version = "4.2.0"
 description = "Mire compiler (Avenys) — compiler binary and runtime/PAL sources"
 author = "mire-lang"
 compiler = ">=0.15.0"
@@ -58,18 +86,5 @@ abi = 1
 language = ">=0.15.0"
 method = "clone"
 repo = "mire-lang/Avenys-rust"
-ref = "v3.24.27"
-commit = "c5c662e947050011bc35ea24df98a155e36eeb7c"
-
-[[packages]]
-name = "owl"
-version = "0.31.0"
-description = "Package and project manager for the Mire (Avenys) language"
-author = "mire-lang"
-compiler = ">=0.15.0"
-abi = 1
-language = ">=0.15.0"
-method = "clone"
-repo = "mire-lang/owl"
-ref = "v0.31.0"
-commit = "40d7287fed266cb54cabad00de20f77530ec8e2e"
+ref = "v4.2.0"
+commit = "07c08ec"

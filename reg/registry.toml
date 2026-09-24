@@ -6,20 +6,17 @@ description = "Official Mire package registry"
 url = "https://github.com/mire-lang/reg"
 url-raw = "https://raw.githubusercontent.com/mire-lang/reg/master/mor"
 
-[keys]
-# ED25519 public keys for signature verification
-# Add keys with: owl registry add-key <name> <public-key>
+[cfg]
+publisher = "publish.toml"
+registry = "local"
+cache = "~/.owl/cache"
+libs = "~/.owl/libs"
 
-[packages]
-# Package inclusion rules
-# include = ["*"]
-# exclude = []
+[exports]
+# Internal module exports for registry operations
 
-[mirror]
-# Mirror configuration for faster downloads
-# mirrors = ["https://mirror.example.com/mor"]
+[dependencies]
+# Registry dependencies (none)
 
-[audit]
-# Security audit settings
-scan-on-publish = true
-scan-on-install = true
+["owl@lock"]
+version = "3"

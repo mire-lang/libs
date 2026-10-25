@@ -96,11 +96,10 @@ author = "mire-lang"
 compiler = ">=0.15.0"
 abi = 1
 language = ">=0.15.0"
-method = "release"
+method = "clone"
 repo = "mire-lang/SDL"
-tag = "v1.0.1"
-asset = "sdl-1.0.1.tar.zst"
-sha256 = ""
+ref = "master"
+commit = ""
 default = true
 
 # ── sqlite ────────────────────────────────────────────────────────────
@@ -116,7 +115,7 @@ abi = 1
 language = ">=0.15.0"
 method = "clone"
 repo = "mire-lang/sqlite"
-ref = "main"
+ref = "master"
 commit = ""
 default = true
 
@@ -142,7 +141,7 @@ default = true
 
 [[packages]]
 name = "avenys"
-version = "4.4.12"
+version = "4.4.13"
 description = "Mire compiler (Avenys) — compiler binary and runtime/PAL sources"
 author = "mire-lang"
 compiler = ">=0.15.0"
@@ -150,7 +149,7 @@ abi = 1
 language = ">=0.15.0"
 method = "release"
 repo = "mire-lang/Avenys-rust"
-tag = "v4.4.12"
+tag = "v4.4.13"
 asset = "mire-compiler-x86_64-unknown-linux-gnu.tar.gz"
 sha256 = ""
 default = true
@@ -170,5 +169,5 @@ method = "release"
 repo = "mire-lang/owl"
 tag = "v1.3.0"
 asset = "owl-x86_64-unknown-linux-gnu.tar.gz"
-sha256 = ""
+sha256 = "81f2b3625edd6e34f54950d91b3e2dba3f4f2a4b904a4074e963efc083d80a6a"
 default = true

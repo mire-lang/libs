@@ -3,14 +3,19 @@
 [registry]
 name = "MOR"
 description = "Official Mire package registry"
-url = "https://github.com/mire-lang/reg"
-url-raw = "https://raw.githubusercontent.com/mire-lang/reg/master/mor"
+url = "https://github.com/mire-lang/libs"
+url-raw = "https://raw.githubusercontent.com/mire-lang/libs/main/reg"
 
 [cfg]
 publisher = "publish.toml"
 registry = "local"
 cache = "~/.owl/cache"
 libs = "~/.owl/libs"
+
+# Default symlinks for multi-version packages
+[symlinks]
+kioto = "kioto@3.1.0"
+mire = "mire@2.0.0-beta"
 
 [exports]
 # Internal module exports for registry operations

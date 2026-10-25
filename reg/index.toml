@@ -1,4 +1,4 @@
-# Registry index — mire-registry
+# Registry index — MOR (Mire Official Registry)
 # Each entry describes a published package version.
 # Two install methods are supported:
 #   method = "clone"   → owl git-clones the repo into ~/.owl/libs/<name>
@@ -6,10 +6,56 @@
 #   method = "release" → owl downloads the release asset from GitHub and
 #                        verifies its SHA-256 before extracting
 # `repo` may be a full URL or a "owner/name" GitHub shorthand.
+#
+# Multi-version packages use version-suffixed directory names:
+#   ~/.owl/libs/<name>@<version>
+# Default symlinks:
+#   ~/.owl/libs/kioto  ->  ~/.owl/libs/kioto@3.1.0   (default = latest)
+#   ~/.owl/libs/mire   ->  ~/.owl/libs/mire@2.0.0-beta (default = latest beta)
+
+# ── kioto ─────────────────────────────────────────────────────────────
+# 2.5.0 — stable, maintained on release/2.5.0 branch (separate, deprecated later)
+# 3.1.0 — latest, default (main branch), symlink kioto -> kioto@3.1.0
+
+[[packages]]
+name = "kioto"
+version = "2.5.0"
+description = "Standard library for Mire — core types, collections, I/O, networking, crypto"
+author = "mire-lang"
+compiler = ">=0.15.0"
+abi = 1
+language = ">=0.15.0"
+method = "clone"
+repo = "mire-lang/Kioto"
+ref = "release/2.5.0"
+commit = ""
+default = false
+branch = "release/2.5.0"
+install_path = "~/.owl/libs/kioto@2.5.0"
+
+[[packages]]
+name = "kioto"
+version = "3.1.0"
+description = "Standard library for Mire — core types, collections, I/O, networking, crypto"
+author = "mire-lang"
+compiler = ">=0.15.0"
+abi = 1
+language = ">=0.15.0"
+method = "clone"
+repo = "mire-lang/Kioto"
+ref = "main"
+commit = ""
+default = true
+branch = "main"
+install_path = "~/.owl/libs/kioto@3.1.0"
+
+# ── mire ──────────────────────────────────────────────────────────────
+# 1.2.4 — previous stable, maintained on release/1.2.4 branch
+# 2.0.0-beta — latest, default (main branch), symlink mire -> mire@2.0.0-beta
 
 [[packages]]
 name = "mire"
-version = "1.0.0"
+version = "1.2.4"
 description = "Core library for the Mire language — vec, map, str, maybe, result, arr, std macros"
 author = "mire-lang"
 compiler = ">=0.15.0"
@@ -17,36 +63,48 @@ abi = 1
 language = ">=0.15.0"
 method = "clone"
 repo = "mire-lang/mire-lib"
-ref = "main"
-commit = "b5a23b4"
+ref = "release/1.2.4"
+commit = ""
+default = false
+branch = "release/1.2.4"
+install_path = "~/.owl/libs/mire@1.2.4"
 
 [[packages]]
-name = "kioto"
-version = "2.5.0"
-description = "Standard library for Mire — core types, collections, I/O, networking, crypto, and more"
+name = "mire"
+version = "2.0.0-beta"
+description = "Library for the Mire language — stdlib reorganization (beta)"
 author = "mire-lang"
 compiler = ">=0.15.0"
 abi = 1
 language = ">=0.15.0"
-method = "release"
-repo = "mire-lang/Kioto"
-tag = "v2.5.0"
-asset = "kioto-2.5.0.tar.zst"
-sha256 = "TBD"
+method = "clone"
+repo = "mire-lang/mire-lib"
+ref = "main"
+commit = ""
+default = true
+branch = "main"
+install_path = "~/.owl/libs/mire@2.0.0-beta"
+
+# ── sdl ───────────────────────────────────────────────────────────────
+# Single version: latest only
 
 [[packages]]
 name = "sdl"
-version = "1.3.1"
-description = "SDL bindings for Mire — SDL2 and SDL3, split by functional area (events, render, video, audio, clipboard, timer)"
+version = "1.0.1"
+description = "SDL bindings for Mire — SDL2 and SDL3, split by functional area"
 author = "mire-lang"
 compiler = ">=0.15.0"
 abi = 1
 language = ">=0.15.0"
 method = "release"
 repo = "mire-lang/SDL"
-tag = "v1.3.1"
-asset = "sdl-1.3.1.tar.zst"
-sha256 = "TBD"
+tag = "v1.0.1"
+asset = "sdl-1.0.1.tar.zst"
+sha256 = ""
+default = true
+
+# ── sqlite ────────────────────────────────────────────────────────────
+# Single version: latest only
 
 [[packages]]
 name = "sqlite"
@@ -56,35 +114,61 @@ author = "mire-lang"
 compiler = ">=0.15.0"
 abi = 1
 language = ">=0.15.0"
-method = "release"
+method = "clone"
 repo = "mire-lang/sqlite"
-tag = "v0.1.0"
-asset = "sqlite-0.1.0.tar.zst"
-sha256 = "TBD"
+ref = "main"
+commit = ""
+default = true
+
+# ── wasm ──────────────────────────────────────────────────────────────
+# Single version: latest only
 
 [[packages]]
 name = "wasm"
-version = "0.1.0"
+version = "0.2.0"
 description = "WASI host primitives for Mire (host, fetch, storage, canvas, memory)"
 author = "mire-lang"
 compiler = ">=0.15.0"
 abi = 1
 language = ">=0.15.0"
-method = "release"
-repo = "mire-lang/wasm-lib"
-tag = "v0.1.0"
-asset = "wasm-0.1.0.tar.zst"
-sha256 = "TBD"
+method = "clone"
+repo = "mire-lang/wasm"
+ref = "main"
+commit = ""
+default = true
+
+# ── avenys ────────────────────────────────────────────────────────────
+# Compiler package (not a library, but tracked in registry)
 
 [[packages]]
 name = "avenys"
-version = "4.2.0"
+version = "4.4.12"
 description = "Mire compiler (Avenys) — compiler binary and runtime/PAL sources"
 author = "mire-lang"
 compiler = ">=0.15.0"
 abi = 1
 language = ">=0.15.0"
-method = "clone"
+method = "release"
 repo = "mire-lang/Avenys-rust"
-ref = "v4.2.0"
-commit = "07c08ec"
+tag = "v4.4.12"
+asset = "mire-compiler-x86_64-unknown-linux-gnu.tar.gz"
+sha256 = ""
+default = true
+
+# ── owl ───────────────────────────────────────────────────────────────
+# Package manager (not a library, but tracked in registry)
+
+[[packages]]
+name = "owl"
+version = "1.3.0"
+description = "Package and project manager for the Mire (Avenys) language"
+author = "mire-lang"
+compiler = ">=0.15.0"
+abi = 1
+language = ">=0.15.0"
+method = "release"
+repo = "mire-lang/owl"
+tag = "v1.3.0"
+asset = "owl-x86_64-unknown-linux-gnu.tar.gz"
+sha256 = ""
+default = true

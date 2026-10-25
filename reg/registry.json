@@ -1,12 +1,46 @@
 {
-  "name": "mire-registry",
+  "name": "MOR",
   "protocol": 1,
-  "serial": 61,
-  "generated": "2026-09-22T00:00:00Z",
-  "expires": "2026-10-22T00:00:00Z",
+  "serial": 62,
+  "generated": "2026-10-25T00:00:00Z",
+  "expires": "2026-11-25T00:00:00Z",
   "public-key": "MCowBQYDK2VwAyEAkj/5fcvMSJssa/50dCFzjctZQNj7qh0FrlG5zRW8Omc=",
   "trust-policy": 1,
-  "url": "https://github.com/mire-lang/reg/releases/download/packages-v2",
+  "url": "https://github.com/mire-lang/libs/releases/download/packages-v2",
   "mirrors": [],
-  "packages": 7
+  "packages": {
+    "kioto": {
+      "versions": ["2.5.0", "3.1.0"],
+      "default": "3.1.0",
+      "branches": { "2.5.0": "release/2.5.0", "3.1.0": "main" },
+      "symlink": "kioto -> kioto@3.1.0"
+    },
+    "mire": {
+      "versions": ["1.2.4", "2.0.0-beta"],
+      "default": "2.0.0-beta",
+      "branches": { "1.2.4": "release/1.2.4", "2.0.0-beta": "main" },
+      "symlink": "mire -> mire@2.0.0-beta"
+    },
+    "sdl": {
+      "versions": ["1.0.1"],
+      "default": "1.0.1"
+    },
+    "sqlite": {
+      "versions": ["0.1.0"],
+      "default": "0.1.0"
+    },
+    "wasm": {
+      "versions": ["0.2.0"],
+      "default": "0.2.0"
+    },
+    "avenys": {
+      "versions": ["4.4.12"],
+      "default": "4.4.12"
+    },
+    "owl": {
+      "versions": ["1.3.0"],
+      "default": "1.3.0"
+    }
+  },
+  "total_packages": 7
 }

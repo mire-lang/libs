@@ -151,7 +151,7 @@ method = "release"
 repo = "mire-lang/Avenys-rust"
 tag = "v4.4.13"
 asset = "mire-compiler-x86_64-unknown-linux-gnu.tar.gz"
-sha256 = ""
+sha256 = "d6a6a27932c68f5a16b99df7fcc5b399bb8af44498817f0617486dae1bc1635d"
 default = true
 
 # ── owl ───────────────────────────────────────────────────────────────

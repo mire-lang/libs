@@ -169,5 +169,5 @@ method = "release"
 repo = "mire-lang/owl"
 tag = "v1.3.0"
 asset = "owl-x86_64-unknown-linux-gnu.tar.gz"
-sha256 = "81f2b3625edd6e34f54950d91b3e2dba3f4f2a4b904a4074e963efc083d80a6a"
+sha256 = "026baa7b97e7043824c52f6e6eead9c32fb0179f4b75f603ecfb1028e9f0b599"
 default = true
